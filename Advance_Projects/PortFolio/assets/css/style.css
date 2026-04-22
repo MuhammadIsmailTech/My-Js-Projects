@@ -97,9 +97,9 @@ body {
   background: linear-gradient(180deg, var(--accent-blue), var(--accent-cyan));
 }
 
-/* ============================================
+/*  
    PRELOADER - Enhanced
-   ============================================ */
+     */
 .loader-container {
   position: fixed;
   inset: 0;
@@ -132,18 +132,20 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* ============================================
-   NAVIGATION - Glassmorphism
-   ============================================ */
-header {
+ /* NAVIGATION - Glassmorphism */
+/* ── Navbar ── */
+ header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1000;
-  padding: var(--space-4) 10%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5%;
   height: 7rem;
-  background: rgba(10, 14, 26, 0.8);
+  background: rgba(10, 14, 26, 0.6);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-subtle);
@@ -151,12 +153,13 @@ header {
 }
 
 header.scrolled {
-  padding: var(--space-3) 10%;
-  height: 6rem;
+  height: 5rem;
   background: rgba(10, 14, 26, 0.95);
   box-shadow: var(--shadow-lg);
+  border-bottom-color: rgba(255, 255, 255, 0.04);
 }
 
+/* ── Logo ── */
 header .logo {
   font-family: var(--font-display);
   font-size: var(--text-xl);
@@ -166,58 +169,226 @@ header .logo {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   letter-spacing: -0.02em;
-  transition: transform var(--duration-fast) var(--ease-out);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  transition: opacity var(--duration-fast) var(--ease-out);
+  z-index: 1001;
+  flex-shrink: 0;
 }
 
 header .logo:hover {
-  transform: scale(1.05);
-  filter: brightness(1.2);
+  opacity: 0.8;
 }
 
 header .logo i {
-  margin-right: var(--space-2);
-  font-size: 2rem;
+  font-size: 1.8rem;
+  -webkit-text-fill-color: var(--accent-cyan);
 }
 
-/* Navigation Links */
+/* ── Hamburger Button ── */
+
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 44px;
+  height: 44px;
+  background: none;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  cursor: pointer;
+  z-index: 1001;
+  gap: 6px;
+  padding: 10px;
+  transition: border-color var(--duration-fast) var(--ease-out),background var(--duration-fast) var(--ease-out);
+}
+
+.menu-toggle:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.menu-toggle span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: var(--text-secondary);
+  border-radius: 2px;
+  transition: all var(--duration-normal) var(--ease-out);
+  transform-origin: center;
+}
+
+/* Hamburger → X animation */
+.menu-toggle.active span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+  background: var(--accent-cyan);
+}
+
+.menu-toggle.active span:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.menu-toggle.active span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+  background: var(--accent-cyan);
+}
+
+/* ── Desktop Nav ── */
+header .navbar {
+  display: flex;
+  align-items: center;
+}
+
 header .navbar ul {
   list-style: none;
   display: flex;
-  gap: var(--space-6);
   align-items: center;
+  gap: var(--space-1);
 }
 
 header .navbar ul li a {
   font-family: var(--font-display);
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   color: var(--text-secondary);
   font-weight: 500;
   text-decoration: none;
   padding: var(--space-2) var(--space-3);
+  border-radius: 8px;
   position: relative;
-  transition: color var(--duration-fast) var(--ease-out);
+  transition: color var(--duration-fast) var(--ease-out),
+  background var(--duration-fast) var(--ease-out);
+  white-space: nowrap;
 }
 
 header .navbar ul li a::after {
   content: '';
   position: absolute;
-  bottom: 0;
+  bottom: 2px;
   left: 50%;
   width: 0;
   height: 2px;
   background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan));
+  border-radius: 2px;
   transition: all var(--duration-normal) var(--ease-out);
   transform: translateX(-50%);
 }
 
-header .navbar ul li a:hover,
+header .navbar ul li a:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
 header .navbar ul li a.active {
   color: var(--text-primary);
 }
 
 header .navbar ul li a:hover::after,
 header .navbar ul li a.active::after {
-  width: 100%;
+  width: 60%;
+}
+
+/* ── Mobile Overlay ── */
+.menu {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  opacity: 0;
+  transition: opacity var(--duration-normal) var(--ease-out);
+}
+
+.menu.visible {
+  opacity: 1;
+}
+
+/* ── Mobile Responsive ── */
+@media (max-width: 900px) {
+  .menu-toggle {
+display: flex;
+  }
+
+  header {
+height: 5rem;
+padding: 0 5%;
+  }
+
+  header.scrolled {
+height: 4.5rem;
+  }
+
+  header .navbar {
+position: fixed;
+top: 0;
+right: 0;
+width: min(320px, 85vw);
+height: 100vh;
+height: 100dvh;
+background: rgba(14, 18, 32, 0.98);
+backdrop-filter: blur(30px);
+-webkit-backdrop-filter: blur(30px);
+border-left: 1px solid var(--border-subtle);
+flex-direction: column;
+justify-content: center;
+padding: var(--space-6);
+transform: translateX(100%);
+transition: transform var(--duration-slow) var(--ease-out);
+z-index: 1000;
+  }
+
+  header .navbar.open {
+transform: translateX(0);
+  }
+
+  .menu {
+display: block;
+  }
+
+  header .navbar ul {
+flex-direction: column;
+align-items: stretch;
+gap: var(--space-1);
+width: 100%;
+  }
+
+  header .navbar ul li a {
+font-size: var(--text-base);
+font-weight: 500;
+padding: var(--space-3) var(--space-4);
+border-radius: 10px;
+display: flex;
+align-items: center;
+gap: var(--space-3);
+  }
+
+  header .navbar ul li a::after {
+display: none;
+  }
+
+  header .navbar ul li a:hover,
+  header .navbar ul li a.active {
+background: rgba(255, 255, 255, 0.06);
+color: var(--accent-cyan);
+  }
+
+  /* Link number indicators on mobile */
+  header .navbar ul li a .link-num {
+font-family: var(--font-mono);
+font-size: var(--text-sm);
+color: var(--text-muted);
+min-width: 1.5rem;
+transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  header .navbar ul li a:hover .link-num,
+  header .navbar ul li a.active .link-num {
+color: var(--accent-cyan);
+  }
 }
 
 /* Mobile Menu Toggle */
@@ -239,53 +410,53 @@ header .navbar ul li a.active::after {
 
 @media (max-width: 768px) {
   #menu {
-    display: block;
+display: block;
   }
   
   header .navbar {
-    position: fixed;
-    top: 7rem;
-    right: -100%;
-    width: 80%;
-    max-width: 300px;
-    height: calc(100vh - 7rem);
-    background: rgba(17, 24, 39, 0.98);
-    backdrop-filter: blur(20px);
-    border-left: 1px solid var(--border-subtle);
-    transition: right var(--duration-normal) var(--ease-out);
-    padding: var(--space-6);
+position: fixed;
+top: 7rem;
+right: -100%;
+width: 80%;
+max-width: 300px;
+height: calc(100vh - 7rem);
+background: rgba(17, 24, 39, 0.98);
+backdrop-filter: blur(20px);
+border-left: 1px solid var(--border-subtle);
+transition: right var(--duration-normal) var(--ease-out);
+padding: var(--space-6);
   }
   
   header .navbar.nav-toggle {
-    right: 0;
+right: 0;
   }
   
   header .navbar ul {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-4);
+flex-direction: column;
+align-items: flex-start;
+gap: var(--space-4);
   }
   
   header .navbar ul li {
-    width: 100%;
+width: 100%;
   }
   
   header .navbar ul li a {
-    display: block;
-    width: 100%;
-    padding: var(--space-3) 0;
-    font-size: var(--text-lg);
+display: block;
+width: 100%;
+padding: var(--space-3) 0;
+font-size: var(--text-lg);
   }
   
   header .navbar ul li a::after {
-    left: 0;
-    transform: none;
+left: 0;
+transform: none;
   }
 }
 
-/* ============================================
+/*  
    HERO SECTION - Modern Gradient Mesh
-   ============================================ */
+     */
 .home {
   position: relative;
   min-height: 100vh;
@@ -301,9 +472,9 @@ header .navbar ul li a.active::after {
   position: absolute;
   inset: 0;
   background: 
-    radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 80%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+radial-gradient(ellipse at 80% 80%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
+radial-gradient(ellipse at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
   animation: meshMove 20s ease-in-out infinite;
   z-index: 0;
 }
@@ -433,9 +604,9 @@ header .navbar ul li a.active::after {
   object-fit: cover;
   border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
   box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.3),
-    0 0 0 1px var(--border-subtle),
-    0 0 60px rgba(99, 102, 241, 0.2);
+0 20px 40px rgba(0, 0, 0, 0.3),
+0 0 0 1px var(--border-subtle),
+0 0 60px rgba(99, 102, 241, 0.2);
   transition: all var(--duration-slow) var(--ease-out);
   animation: morphShape 8s ease-in-out infinite;
 }
@@ -450,9 +621,9 @@ header .navbar ul li a.active::after {
 .home .image img:hover {
   transform: scale(1.05) rotate(2deg);
   box-shadow: 
-    0 30px 60px rgba(0, 0, 0, 0.4),
-    0 0 0 2px var(--accent-purple),
-    0 0 80px rgba(99, 102, 241, 0.4);
+0 30px 60px rgba(0, 0, 0, 0.4),
+0 0 0 2px var(--accent-purple),
+0 0 80px rgba(99, 102, 241, 0.4);
 }
 
 /* Social Icons - Modern Style */
@@ -516,28 +687,28 @@ header .navbar ul li a.active::after {
 
 @media (max-width: 768px) {
   .home {
-    flex-direction: column-reverse;
-    text-align: center;
-    padding-top: 10rem;
+flex-direction: column-reverse;
+text-align: center;
+padding-top: 10rem;
   }
   
   .home .content {
-    max-width: 100%;
+max-width: 100%;
   }
   
   .home .image img {
-    width: 250px;
-    margin-bottom: var(--space-6);
+width: 250px;
+margin-bottom: var(--space-6);
   }
   
   .socials .social-icons {
-    justify-content: center;
+justify-content: center;
   }
 }
 
-/* ============================================
+/*  
    SECTION HEADINGS - Unified Style
-   ============================================ */
+     */
 section {
   min-height: 100vh;
   padding: var(--space-16) 9%;
@@ -572,9 +743,9 @@ section {
   background-clip: text;
 }
 
-/* ============================================
+/*  
    ABOUT SECTION - Card Layout
-   ============================================ */
+     */
 .about {
   background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
   position: relative;
@@ -713,25 +884,25 @@ section {
 
 @media (max-width: 768px) {
   .about .row {
-    grid-template-columns: 1fr;
-    text-align: center;
+grid-template-columns: 1fr;
+text-align: center;
   }
   
   .about .row .image img {
-    max-width: 280px;
-    margin: 0 auto;
-    display: block;
+max-width: 280px;
+margin: 0 auto;
+display: block;
   }
   
   .about .row .content .box-container {
-    grid-template-columns: 1fr;
-    text-align: left;
+grid-template-columns: 1fr;
+text-align: left;
   }
 }
 
-/* ============================================
+/*  
    SKILLS SECTION - Bento Grid
-   ============================================ */
+     */
 .skills {
   background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
 }
@@ -813,9 +984,9 @@ section {
   }
 }
 
-/* ============================================
+/*  
    EDUCATION SECTION - Timeline Cards
-   ============================================ */
+     */
 .education {
   background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
 }
@@ -939,9 +1110,9 @@ section {
   }
 }
 
-/* ============================================
+/*  
    WORK SECTION - Project Cards
-   ============================================ */
+     */
 .work {
   background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
 }
@@ -1091,9 +1262,9 @@ section {
   transform: translateX(4px);
 }
 
-/* ============================================
+/*  
    EXPERIENCE SECTION - Modern Timeline
-   ============================================ */
+     */
 .experience {
   background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
   min-height: 80vh;
@@ -1284,9 +1455,9 @@ section {
   }
 }
 
-/* ============================================
+/*  
    CONTACT SECTION - Modern Form
-   ============================================ */
+     */
 .contact {
   background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
   min-height: 80vh;
@@ -1576,9 +1747,9 @@ form .button-area {
   }
 }
 
-/* ============================================
+/*  
    SCROLL TO TOP BUTTON
-   ============================================ */
+     */
 #scroll-top {
   position: fixed;
   bottom: 30px;
@@ -1613,9 +1784,9 @@ form .button-area {
   box-shadow: 0 8px 25px rgba(99, 102, 241, 0.6);
 }
 
-/* ============================================
+/*  
    UTILITY CLASSES
-   ============================================ */
+     */
 .text-gradient {
   background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
   -webkit-background-clip: text;
