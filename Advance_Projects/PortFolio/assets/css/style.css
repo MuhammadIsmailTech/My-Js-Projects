@@ -447,6 +447,7 @@ radial-gradient(ellipse at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 70%)
 
 /* Modern CTA Button */
 .home .btn {
+  text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
@@ -548,6 +549,7 @@ radial-gradient(ellipse at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 70%)
 }
 
 .social-icons a {
+  text-decoration: none;
   width: 44px;
   height: 44px;
   display: flex;
@@ -1562,6 +1564,7 @@ form .button-area {
   color: #ffae00;
 }
 .footer .box-container .box a {
+  text-decoration: none;
   font-size: 1.5rem;
   color: rgb(238, 238, 238);
   padding: 0.3rem 0;
@@ -1576,6 +1579,7 @@ form .button-area {
   padding: 1rem 0;
 }
 .footer .box-container .box .share a {
+  text-decoration: none;
   height: 4rem;
   width: 4rem;
   padding: 1rem;
@@ -1604,6 +1608,7 @@ form .button-area {
   border-top: 0.1rem solid #fff3;
 }
 .footer .credit a {
+  text-decoration: none;
   color: #ffae00;
 }
 .footer .fa {
