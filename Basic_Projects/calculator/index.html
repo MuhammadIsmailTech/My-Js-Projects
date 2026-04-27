@@ -2,34 +2,84 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculator</title>
-    <link rel="shortcut icon" href="/Basic_Projects/calculator/calculator-solid-full.svg" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Calc</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/Basic_Projects/calculator/calculator.css">
+    <link rel="shortcut icon" href="calculator-solid-full.svg" type="image/x-icon">
 </head>
 <body>
-    <div class="calculator">
-        <input type="text" id="display" disabled>
-        <div class="buttons">
-            <button onclick="clearDisplay()">C</button>
-            <button onclick="appendValue('/')">/</button>
-            <button onclick="appendValue('*')">*</button>
-            <button onclick="appendValue('-')">-</button>
-            <button onclick="appendValue('7')">7</button>
-            <button onclick="appendValue('8')">8</button>
-            <button onclick="appendValue('9')">9</button>
-            <button onclick="appendValue('+')">+</button>
-            <button onclick="appendValue('4')">4</button>
-            <button onclick="appendValue('5')">5</button>
-            <button onclick="appendValue('6')">6</button>
-            <button onclick="appendValue('1')">1</button>
-            <button onclick="appendValue('2')">2</button>
-            <button onclick="appendValue('3')">3</button>
-            <button onclick="calculateResult()">=</button>
-            <button onclick="appendValue('0')" class="zero">0</button>
-            <button onclick="appendValue('.')">.</button>
-        </div>
+
+    <!-- Background atmosphere -->
+    <div class="bg-blob blob-1" aria-hidden="true"></div>
+    <div class="bg-blob blob-2" aria-hidden="true"></div>
+    <div class="bg-blob blob-3" aria-hidden="true"></div>
+    <div class="bg-grid" aria-hidden="true"></div>
+
+    <div class="calculator-wrapper">
+
+        <!--   index.html — calculator structure -->
+        <main class="calculator" role="application" aria-label="Calculator">
+            <span class="brand" aria-hidden="true">Calc</span>
+
+            <button class="history-toggle" id="histToggle" aria-label="Toggle calculation history">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+            </button>
+
+            <!-- Display -->
+            <div class="display" id="display">
+                <div class="display-shine" aria-hidden="true"></div>
+                <div class="display-expression" id="exprLine" aria-live="polite"></div>
+                <div class="display-value" id="valLine" aria-live="assertive">0</div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="buttons" role="group" aria-label="Calculator buttons">
+                <button class="btn btn-clr"  data-act="clear"   aria-label="Clear all">C</button>
+                <button class="btn btn-fn"   data-act="delete"  aria-label="Delete last character">&#9003;</button>
+                <button class="btn btn-fn"   data-act="percent" aria-label="Percent">%</button>
+                <button class="btn btn-op"   data-act="op" data-val="÷" aria-label="Divide">÷</button>
+
+                <button class="btn" data-act="num" data-val="7">7</button>
+                <button class="btn" data-act="num" data-val="8">8</button>
+                <button class="btn" data-act="num" data-val="9">9</button>
+                <button class="btn btn-op" data-act="op" data-val="×" aria-label="Multiply">×</button>
+
+                <button class="btn" data-act="num" data-val="4">4</button>
+                <button class="btn" data-act="num" data-val="5">5</button>
+                <button class="btn" data-act="num" data-val="6">6</button>
+                <button class="btn btn-op" data-act="op" data-val="−" aria-label="Subtract">−</button>
+
+                <button class="btn" data-act="num" data-val="1">1</button>
+                <button class="btn" data-act="num" data-val="2">2</button>
+                <button class="btn" data-act="num" data-val="3">3</button>
+                <button class="btn btn-op" data-act="op" data-val="+" aria-label="Add">+</button>
+
+                <button class="btn btn-zero" data-act="num" data-val="0">0</button>
+                <button class="btn" data-act="dot" aria-label="Decimal point">.</button>
+                <button class="btn btn-eq" data-act="equal" aria-label="Equals">=</button>
+            </div>
+
+            <div class="kb-hint" aria-hidden="true">Keyboard supported</div>
+        </main>
+
+        <!-- History side-panel -->
+        <aside class="history-panel" id="histPanel" aria-label="Calculation history">
+            <div class="history-head">
+                <span class="history-label">History</span>
+                <button class="history-del" id="histClear">Clear</button>
+            </div>
+            <div class="history-list" id="histList">
+                <div class="history-empty">No calculations yet</div>
+            </div>
+        </aside>
     </div>
-    <script src="/Basic_Projects/calculator/calculator.js"></script>
+
+     <script src="/Basic_Projects/calculator/calculator.js"></script>
 </body>
 </html>
