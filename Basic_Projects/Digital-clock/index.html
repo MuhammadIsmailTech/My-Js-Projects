@@ -4,16 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Digital Clock</title>
-    <link rel="shortcut icon" href="/Basic_Projects/Digital-clock/clock-regular-full.svg" type="image/x-icon">
-    <link rel="stylesheet" href="/Basic_Projects/Digital-clock/style.css">
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Font: elegant monospace-style display font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;600;800&family=JetBrains+Mono:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div class="clock-container">
-        <h1 id="digitalClock">00:00:00</h1>
+    <!-- Animated background blobs for depth -->
+    <div class="bg-layer" aria-hidden="true">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
     </div>
 
-    <script src="/Basic_Projects/Digital-clock/script.js"></script>
+    <!-- Main clock container -->
+    <main class="clock-container" role="timer" aria-label="Digital Clock">
 
+        <!-- Top controls row -->
+        <div class="controls">
+            <!-- Light / Dark mode toggle -->
+            <button class="control-btn theme-toggle" id="themeToggle" aria-label="Toggle light and dark mode" title="Toggle theme">
+                <svg class="icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+                <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+            </button>
+
+            <!-- 12h / 24h format toggle -->
+            <button class="control-btn format-toggle" id="formatToggle" aria-label="Toggle between 12-hour and 24-hour format" title="Toggle format">
+                <span class="format-label" id="formatLabel">12H</span>
+            </button>
+        </div>
+
+        <!-- Date display -->
+        <div class="date-display" id="dateDisplay" aria-live="polite">
+            <!-- Filled by JS -->
+        </div>
+
+        <!-- Time display -->
+        <div class="time-display">
+            <div class="time-digit-group">
+                <span class="time-digit" id="hours">00</span>
+            </div>
+
+            <span class="time-separator" id="separator1">:</span>
+
+            <div class="time-digit-group">
+                <span class="time-digit" id="minutes">00</span>
+            </div>
+
+            <span class="time-separator" id="separator2">:</span>
+
+            <div class="time-digit-group seconds-group">
+                <span class="time-digit seconds-digit" id="seconds">00</span>
+                <!-- Subtle pulse ring behind seconds -->
+                <span class="seconds-pulse" id="secondsPulse" aria-hidden="true"></span>
+            </div>
+
+            <!-- AM/PM badge (only visible in 12h mode) -->
+            <span class="ampm-badge" id="ampmBadge" aria-live="polite">AM</span>
+        </div>
+
+        <!-- Timezone label -->
+        <div class="timezone-label" id="timezoneLabel" aria-live="polite">
+            <!-- Filled by JS -->
+        </div>
+
+        <!-- Decorative bottom bar -->
+        <div class="glow-bar" aria-hidden="true"></div>
+    </main>
+
+    <script src="script.js"></script>
 </body>
 </html>
