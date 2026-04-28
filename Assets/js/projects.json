@@ -6,17 +6,17 @@
   },
   {
     "name": "3D-Analog-clock",
-    "desc": "A simple 3D-Analog Clock that show Real time.",
+    "desc": "A simple 3D Analog Clock that shows the current time with hour, minute, and second hands. It has a sleek design and can be customized with different colors and styles.",
     "meta": "Analog-clock"
   },
   {
     "name": "Calculator App",
-    "desc": "Simple Calculator which solve basic arithemic Question.",
+    "desc": "A simple Calculator App that performs basic arithmetic operations like addition, subtraction, multiplication, and division. It has a clean and user-friendly interface with real-time calculation results.",
     "meta": "calculator"
   },
   {
     "name": "Digital-clock",
-    "desc": "A Digital Clock that show real time.",
+    "desc": "A Digital Clock that show real time. Ithas a dark mode and light mode. It also has a date and day of the week.",
     "meta": "Digital-clock"
   },
   {
