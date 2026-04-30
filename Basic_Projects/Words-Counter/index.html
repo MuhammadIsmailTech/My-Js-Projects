@@ -1,21 +1,192 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Word Counter</title>
-    <link rel="stylesheet" href="/Basic_Projects/Words-Counter/Word-Counter.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WordCraft — Advanced Word Counter</title>
+
+  <!-- Google Fonts: Space Grotesk (display) + DM Sans (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- External Stylesheet -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="container">
-        <h2>Word Counter</h2>
-        <textarea id="textInput" placeholder="Type or paste text here..."></textarea>
-        <p>Word Count: <span id="wordCount">0</span></p>
-        <p>Letters: <span id="letterCount">0</span></p>
-    </div>
+  <!-- Animated background orbs for depth -->
+  <div class="bg-orb bg-orb-1" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb-2" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb-3" aria-hidden="true"></div>
 
-    <script src="/Basic_Projects/Words-Counter/Word-Counter.js"></script>
+  <div class="app-container">
 
+    <!-- ===== HEADER ===== -->
+    <header class="app-header">
+      <div class="logo">
+        <i class="fas fa-feather-pointed"></i>
+        <h1>WordCraft</h1>
+      </div>
+      <div class="header-actions">
+        <!-- Typing speed badge -->
+        <div class="speed-badge" id="speedBadge" title="Typing speed">
+          <i class="fas fa-gauge-high"></i>
+          <span id="wpmDisplay">0 WPM</span>
+        </div>
+        <!-- Dark / Light mode toggle -->
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle color theme">
+          <i class="fas fa-moon" id="themeIcon"></i>
+        </button>
+      </div>
+    </header>
+
+    <main>
+
+      <!-- ===== TEXT INPUT ===== -->
+      <section class="input-section" aria-label="Text input area">
+        <div class="textarea-wrap">
+          <textarea
+            id="textInput"
+            placeholder="Start typing or paste your text here..."
+            rows="14"
+            spellcheck="true"
+            aria-label="Enter your text"
+          ></textarea>
+          <!-- Footer bar inside the textarea card -->
+          <div class="textarea-footer">
+            <span class="save-status" id="saveStatus">
+              <i class="fas fa-circle-check"></i> Saved
+            </span>
+            <span class="char-footer" id="charFooter">0 characters</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== STATS DASHBOARD ===== -->
+      <section class="stats-section" aria-label="Text statistics">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-font"></i></div>
+            <div class="stat-value" id="statWords">0</div>
+            <div class="stat-label">Words</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-hashtag"></i></div>
+            <div class="stat-value" id="statChars">0</div>
+            <div class="stat-label">Characters</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-keyboard"></i></div>
+            <div class="stat-value" id="statCharsNoSpace">0</div>
+            <div class="stat-label">No Spaces</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-align-left"></i></div>
+            <div class="stat-value" id="statSentences">0</div>
+            <div class="stat-label">Sentences</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-paragraph"></i></div>
+            <div class="stat-value" id="statParagraphs">0</div>
+            <div class="stat-label">Paragraphs</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-book-open"></i></div>
+            <div class="stat-value" id="statReadTime">0 min</div>
+            <div class="stat-label">Read Time</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-microphone"></i></div>
+            <div class="stat-value" id="statSpeakTime">0 min</div>
+            <div class="stat-label">Speak Time</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-ruler"></i></div>
+            <div class="stat-value" id="statAvgLen">0</div>
+            <div class="stat-label">Avg Word Len</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SEARCH & HIGHLIGHT ===== -->
+      <section class="search-section" aria-label="Search and highlight">
+        <div class="search-bar">
+          <i class="fas fa-magnifying-glass"></i>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search for a word to highlight..."
+            aria-label="Search word"
+          >
+          <span class="search-count" id="searchCount"></span>
+          <button class="search-clear-btn" id="searchClearBtn" aria-label="Clear search">
+            <i class="fas fa-xmark"></i>
+          </button>
+        </div>
+        <!-- Highlighted preview (only visible when searching) -->
+        <div class="search-preview" id="searchPreview" aria-live="polite"></div>
+      </section>
+
+      <!-- ===== TOOLS ===== -->
+      <section class="tools-section" aria-label="Text tools">
+        <h2 class="section-title">Tools</h2>
+        <div class="tools-grid">
+          <button class="tool-btn" id="btnUppercase">
+            <i class="fas fa-arrow-up"></i>
+            <span>Uppercase</span>
+          </button>
+          <button class="tool-btn" id="btnLowercase">
+            <i class="fas fa-arrow-down"></i>
+            <span>Lowercase</span>
+          </button>
+          <button class="tool-btn" id="btnCapitalize">
+            <i class="fas fa-text-height"></i>
+            <span>Capitalize</span>
+          </button>
+          <button class="tool-btn" id="btnRemoveSpaces">
+            <i class="fas fa-minimize"></i>
+            <span>Trim Spaces</span>
+          </button>
+          <button class="tool-btn" id="btnCopy">
+            <i class="fas fa-copy"></i>
+            <span>Copy Text</span>
+          </button>
+          <button class="tool-btn" id="btnDownload">
+            <i class="fas fa-download"></i>
+            <span>Download .txt</span>
+          </button>
+          <button class="tool-btn tool-btn-danger" id="btnClear">
+            <i class="fas fa-trash-can"></i>
+            <span>Clear All</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ===== KEYWORD DENSITY ===== -->
+      <section class="keywords-section" aria-label="Keyword density analysis">
+        <h2 class="section-title">Keyword Density</h2>
+        <div class="keywords-list" id="keywordsList">
+          <p class="keywords-empty">Start typing to see keyword analysis</p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="app-footer">
+      <p>WordCraft &mdash; Advanced Text Analysis Tool</p>
+    </footer>
+
+  </div>
+
+  <!-- Toast notification container -->
+  <div class="toast" id="toast" role="alert" aria-live="assertive"></div>
+
+  <!-- External Script -->
+  <script src="script.js"></script>
 </body>
 </html>

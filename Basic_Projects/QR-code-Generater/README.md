@@ -41,9 +41,8 @@ Three visual styles rendered via Canvas:
 - 10 built-in presets:
   - Classic, Inverted, Ember, Ocean, Forest, Berry, Slate, Gold, Indigo, Teal
 
----
 
-### 📏 Dimensions
+###  Dimensions
 
 - Size: **120px → 800px**
 - Margin (quiet zone): **0 → 6 modules**
@@ -58,7 +57,7 @@ Three visual styles rendered via Canvas:
 | H | 30% | Logos / damage resistance |
 
 
-### 🖼 Logo Overlay
+###  Logo Overlay
 
 - Drag & drop or upload
 - Auto styling:
@@ -69,14 +68,14 @@ Three visual styles rendered via Canvas:
 - Automatically upgrades error correction to **H**
 
 
-### 📤 Export Options
+###  Export Options
 
 - PNG (Canvas export)
 - SVG (vector with gradient support)
 - Copy to clipboard (Clipboard API)
 
 
-### 🕘 History System
+###  History System
 
 - Stores up to **12 recent QR codes**
 - Includes:
@@ -89,18 +88,16 @@ Three visual styles rendered via Canvas:
   - Delete individual items
   - Clear all history
 
----
 
-### 🌗 Theme Support
+###  Theme Support
 
 - Light / Dark mode
 - Uses CSS variables
 - Saved in `localStorage`
 - Toggle icon (sun/moon)
 
----
 
-### 💾 Persistence
+###  Persistence
 
 All settings auto-save in `localStorage`:
 
