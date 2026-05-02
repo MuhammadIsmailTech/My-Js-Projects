@@ -1,22 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Digital Stopwatch</title>
-  <link rel="shortcut icon" href="/Basic_Projects/Stopwatch/stopwatch-solid-full.svg" type="image/x-icon">
-  <link rel="stylesheet" href="/Basic_Projects/Stopwatch/Stopwatch.css"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stopwatch</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@200;400;700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 </head>
 <body>
-  <div class="stopwatch-container">
-    <h1 id="display">00:00:00.000</h1>
-    <div class="controls">
-      <button id="startStopBtn">Start</button>
-      <button id="lapBtn" disabled>Lap</button>
-      <button id="resetBtn" disabled>Reset</button>
+
+<div class="bg-layer" aria-hidden="true">
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+</div>
+<div class="bg-noise" aria-hidden="true"></div>
+<canvas id="particleCanvas" aria-hidden="true"></canvas>
+
+<!-- CSS floating dots -->
+<div id="floatingDots" aria-hidden="true"></div>
+
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<main class="app-container">
+  <header class="app-header">
+    <h1>Precision Stopwatch</h1>
+    <div class="status-indicator" id="statusIndicator">
+      <span class="status-dot"></span>
+      <span id="statusText">Ready</span>
     </div>
-    <ul id="laps"></ul>
+  </header>
+
+  <div class="main-row">
+    <!-- Left: Timer -->
+    <section class="glass-card timer-card" aria-label="Stopwatch display">
+      <div>
+        <div class="ring-container">
+          <svg class="ring-svg" viewBox="0 0 200 200">
+            <circle class="ring-bg" cx="100" cy="100" r="90"/>
+            <circle class="ring-progress" id="ringProgress" cx="100" cy="100" r="90"/>
+          </svg>
+          <div class="ring-time-overlay">
+            <div class="time-display" id="timeDisplay" role="timer" aria-live="off">
+              00<span class="time-separator">:</span>00<span class="time-separator">:</span>00<span class="ms-part">.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btnStartPause" aria-label="Start stopwatch">
+          <i class="fa-solid fa-play"></i>
+          <span>Start</span>
+        </button>
+        <button class="btn btn-secondary" id="btnLap" disabled aria-label="Record lap">
+          <i class="fa-solid fa-flag"></i>
+          <span>Lap</span>
+        </button>
+        <button class="btn btn-ghost" id="btnReset" disabled aria-label="Reset stopwatch">
+          <i class="fa-solid fa-rotate-left"></i>
+          <span>Reset</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Right: Laps -->
+    <section class="glass-card laps-card" aria-label="Lap history">
+      <div class="laps-header">
+        <span class="laps-title">Lap History</span>
+        <span class="laps-count" id="lapsCount">0 laps</span>
+      </div>
+      <div class="laps-list" id="lapsList">
+        <div class="lap-empty" id="lapEmpty">
+          <i class="fa-regular fa-clock"></i>
+          Press Lap while running to record splits
+        </div>
+      </div>
+    </section>
   </div>
-  <script src="/Basic_Projects/Stopwatch/Stopwatch.js"></script>
+
+  <nav class="keyboard-hints" aria-label="Keyboard shortcuts">
+    <span class="key-hint"><kbd>Space</kbd> Start / Pause</span>
+    <span class="key-hint"><kbd>L</kbd> Lap</span>
+    <span class="key-hint"><kbd>R</kbd> Reset</span>
+  </nav>
+</main>
+
 </body>
 </html>
