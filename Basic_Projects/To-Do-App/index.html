@@ -3,28 +3,190 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My To-Do App</title>
-  <link rel="shortcut icon" href="/Basic_Projects/To-Do-App/list-check-solid-full.svg" type="image/x-icon">
-  <link rel="stylesheet" href="/Basic_Projects/To-Do-App/To-Do-App.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <title>Tasks — Your Day, Organized</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    /* === Theme Variables === */
+   
+  </style>
 </head>
-<body>
-  <div class="todo-container">
-    <h1><i class="fa-solid fa-list-check"></i> My To-Do List</h1>
+<body data-theme="dark">
 
-    <div class="input-section">
-      <input type="text" id="taskInput" placeholder="Enter a new task...">
-      <button id="addBtn"><i class="fa-solid fa-plus"></i> Add</button>
-    </div>
+  <!-- Animated Background -->
+  <div class="blob blob-1" aria-hidden="true"></div>
+  <div class="blob blob-2" aria-hidden="true"></div>
+  <div class="blob blob-3" aria-hidden="true"></div>
 
-    <ul id="taskList" class="task-list"></ul>
+  <!-- Toasts -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
-    <div class="bottom-buttons">
-      <button id="clearAll"><i class="fa-solid fa-trash"></i> Clear All</button>
-      <button id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+  <!-- Edit Modal -->
+  <div class="modal-overlay" id="editModal" role="dialog" aria-modal="true" aria-label="Edit task">
+    <div class="modal-box">
+      <h3 class="modal-title">Edit Task</h3>
+      <div class="modal-field">
+        <label for="editText">Task</label>
+        <input type="text" class="modal-input" id="editText" placeholder="Task description">
+      </div>
+      <div class="modal-field">
+        <label>Priority</label>
+        <div class="option-pills" id="editPriorityPills">
+          <button type="button" class="pill-btn p-low" data-priority="low">Low</button>
+          <button type="button" class="pill-btn p-medium" data-priority="medium">Medium</button>
+          <button type="button" class="pill-btn p-high" data-priority="high">High</button>
+        </div>
+      </div>
+      <div class="modal-field">
+        <label>Category</label>
+        <div class="option-pills" id="editCategoryPills">
+          <button type="button" class="pill-btn c-work" data-category="work">Work</button>
+          <button type="button" class="pill-btn c-personal" data-category="personal">Personal</button>
+          <button type="button" class="pill-btn c-health" data-category="health">Health</button>
+          <button type="button" class="pill-btn c-shopping" data-category="shopping">Shopping</button>
+          <button type="button" class="pill-btn c-learning" data-category="learning">Learning</button>
+        </div>
+      </div>
+      <div class="modal-field">
+        <label for="editDate">Due Date</label>
+        <input type="date" class="modal-input date-input" id="editDate" style="width: auto;">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" id="editCancel">Cancel</button>
+        <button class="btn-modal-save" id="editSave">Save Changes</button>
+      </div>
     </div>
   </div>
 
-  <script src="/Basic_Projects/To-Do-App/To-Do-App.js"></script>
+  <!-- Main App -->
+  <main class="app-container">
+    <header class="app-header">
+      <div>
+        <h1 class="app-title">Tasks</h1>
+        <p class="app-subtitle">Your day, organized</p>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="searchToggle" aria-label="Search tasks" title="Search (Ctrl+K)">
+          <i class="fas fa-search"></i>
+        </button>
+        <button class="icon-btn theme-btn" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Search -->
+    <div class="search-bar" id="searchBar">
+      <div class="search-inner">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search your tasks..." aria-label="Search tasks">
+        <button class="search-close" id="searchClose" aria-label="Close search"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <section class="stats-section" aria-label="Task statistics">
+      <div class="stats-top">
+        <span class="stats-label"><strong id="completedCount">0</strong> of <strong id="totalCount">0</strong> completed</span>
+        <span class="stats-percentage" id="statsPercent">0%</span>
+      </div>
+      <div class="progress-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="stats-badges">
+        <span class="stat-badge active-stat"><i class="fas fa-circle" style="font-size:5px;vertical-align:middle;margin-right:3px"></i><span id="activeCount">0</span> active</span>
+        <span class="stat-badge done-stat"><i class="fas fa-check" style="font-size:8px;margin-right:3px"></i><span id="doneCount">0</span> done</span>
+        <span class="stat-badge overdue-stat" id="overdueBadge" style="display:none"><i class="fas fa-clock" style="font-size:8px;margin-right:3px"></i><span id="overdueCount">0</span> overdue</span>
+      </div>
+    </section>
+
+    <!-- Add Todo -->
+    <section class="add-section" aria-label="Add new task">
+      <div class="add-trigger" id="addTrigger" role="button" tabindex="0" aria-expanded="false">
+        <i class="fas fa-plus"></i>
+        <span>Add a new task</span>
+      </div>
+      <div class="add-form" id="addForm">
+        <div class="add-form-inner">
+          <input type="text" class="add-input" id="todoInput" placeholder="What needs to be done?" aria-label="New task description">
+          <div class="add-options">
+            <div class="option-row">
+              <span class="option-label">Priority</span>
+              <div class="option-pills" id="addPriorityPills">
+                <button type="button" class="pill-btn p-low" data-priority="low">Low</button>
+                <button type="button" class="pill-btn p-medium active" data-priority="medium">Medium</button>
+                <button type="button" class="pill-btn p-high" data-priority="high">High</button>
+              </div>
+            </div>
+            <div class="option-row">
+              <span class="option-label">Category</span>
+              <div class="option-pills" id="addCategoryPills">
+                <button type="button" class="pill-btn c-work" data-category="work">Work</button>
+                <button type="button" class="pill-btn c-personal active" data-category="personal">Personal</button>
+                <button type="button" class="pill-btn c-health" data-category="health">Health</button>
+                <button type="button" class="pill-btn c-shopping" data-category="shopping">Shopping</button>
+                <button type="button" class="pill-btn c-learning" data-category="learning">Learning</button>
+              </div>
+            </div>
+            <div class="option-row">
+              <span class="option-label">Due Date</span>
+              <input type="date" class="date-input" id="dueDateInput" aria-label="Due date">
+            </div>
+          </div>
+          <div class="add-actions">
+            <button class="btn-cancel" id="cancelAdd">Cancel</button>
+            <button class="btn-add" id="confirmAdd"><i class="fas fa-plus"></i> Add Task</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="filter-section" aria-label="Filter tasks">
+      <div class="filter-tabs" id="filterTabs" role="tablist">
+        <button class="filter-tab active" data-filter="all" role="tab" aria-selected="true">All</button>
+        <button class="filter-tab" data-filter="active" role="tab" aria-selected="false">Active</button>
+        <button class="filter-tab" data-filter="completed" role="tab" aria-selected="false">Completed</button>
+      </div>
+      <select class="sort-select" id="sortSelect" aria-label="Sort tasks">
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="priority-high">Priority high to low</option>
+        <option value="priority-low">Priority low to high</option>
+        <option value="alpha">Alphabetical</option>
+        <option value="due-date">Due date</option>
+      </select>
+    </section>
+
+    <!-- Category Filter Chips -->
+    <div class="category-chips" id="categoryChips" aria-label="Filter by category">
+      <button class="cat-chip active cc-work" data-cat="work"><span class="dot" style="background:var(--cat-work)"></span>Work</button>
+      <button class="cat-chip active cc-personal" data-cat="personal"><span class="dot" style="background:var(--cat-personal)"></span>Personal</button>
+      <button class="cat-chip active cc-health" data-cat="health"><span class="dot" style="background:var(--cat-health)"></span>Health</button>
+      <button class="cat-chip active cc-shopping" data-cat="shopping"><span class="dot" style="background:var(--cat-shopping)"></span>Shopping</button>
+      <button class="cat-chip active cc-learning" data-cat="learning"><span class="dot" style="background:var(--cat-learning)"></span>Learning</button>
+    </div>
+
+    <!-- Todo List -->
+    <section class="todo-list" id="todoList" aria-label="Task list"></section>
+
+    <!-- Footer -->
+    <div class="list-footer" id="listFooter" style="display:none">
+      <span class="footer-count" id="footerCount"></span>
+      <button class="clear-btn" id="clearCompleted">Clear completed</button>
+    </div>
+  </main>
+
+  <!-- Keyboard Hints -->
+  <div class="kbd-hint" aria-hidden="true">
+    <span><kbd>/</kbd> Search</span>
+    <span><kbd>Esc</kbd> Close</span>
+  </div>
+
+  <script>
+    
+  </script>
 </body>
 </html>
