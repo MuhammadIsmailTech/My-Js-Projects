@@ -1,20 +1,182 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password Generator</title>
-    <link rel="stylesheet" href="/Basic_Projects/Random-Password-Generater/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VaultKey — Password Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="container">
-        <h2>Random Password Generator</h2>
-        <input type="text" id="password" readonly>
-        <button onclick="generatePassword()">Generate Password</button>
+  <!-- Animated background orbs -->
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Theme toggle -->
+  <button class="theme-toggle btn-tooltip" data-tooltip="Toggle theme" id="themeToggle" aria-label="Toggle light and dark mode">
+    <i class="fa-solid fa-sun"></i>
+    <i class="fa-solid fa-moon"></i>
+  </button>
+
+  <!-- Main content -->
+  <main class="container">
+    <div class="glass-card">
+
+      <!-- Card header / branding -->
+      <header class="card-header">
+        <div class="brand-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="brand-text">
+          <h1>VaultKey</h1>
+          <p>Generate unbreakable passwords in seconds</p>
+        </div>
+      </header>
+
+      <!-- Password display area -->
+      <section class="password-section" aria-label="Generated password">
+        <div class="password-display" id="passwordDisplay">
+          <div class="password-text" id="passwordText">
+            <!-- Character spans rendered by JS -->
+          </div>
+          <div class="password-actions">
+            <button class="action-btn btn-tooltip" data-tooltip="Show password" id="toggleVisibility" aria-label="Toggle password visibility">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+            <button class="action-btn btn-tooltip" data-tooltip="Copy to clipboard" id="copyBtn" aria-label="Copy password to clipboard">
+              <i class="fa-solid fa-copy"></i>
+            </button>
+            <button class="action-btn btn-tooltip" data-tooltip="Regenerate" id="regenerateBtn" aria-label="Generate new password">
+              <i class="fa-solid fa-arrows-rotate"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Strength indicator -->
+      <section class="strength-section" aria-label="Password strength">
+        <div class="strength-header">
+          <span class="strength-label" id="strengthLabel">Strength</span>
+          <span class="strength-value" id="strengthValue">--</span>
+        </div>
+        <div class="strength-bar-track">
+          <div class="strength-bar-fill" id="strengthBar"></div>
+        </div>
+        <div class="meta-info">
+          <div class="meta-item">
+            <i class="fa-solid fa-bolt"></i>
+            <span id="entropyValue">0 bits</span>
+          </div>
+          <div class="meta-item">
+            <i class="fa-solid fa-clock"></i>
+            <span id="crackTime">--</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Password length slider -->
+      <section class="length-section" aria-label="Password length">
+        <div class="length-header">
+          <label for="lengthSlider">Password Length</label>
+          <span class="length-badge" id="lengthBadge">16</span>
+        </div>
+        <input
+          type="range"
+          id="lengthSlider"
+          min="4"
+          max="64"
+          value="16"
+          step="1"
+          class="length-slider"
+        >
+        <div class="length-range-labels">
+          <span>4</span>
+          <span>64</span>
+        </div>
+      </section>
+
+      <!-- Character type options -->
+      <section class="options-section" aria-label="Character options">
+        <p class="options-title">Character Types</p>
+        <div class="options-grid">
+          <label class="option-item">
+            <input type="checkbox" class="option-input" data-type="uppercase" checked>
+            <div class="option-content">
+              <i class="fa-solid fa-font option-icon"></i>
+              <div class="option-text">
+                <span class="option-label">Uppercase</span>
+                <span class="option-hint">A – Z</span>
+              </div>
+            </div>
+            <div class="option-toggle"><i class="fa-solid fa-check"></i></div>
+          </label>
+          <label class="option-item">
+            <input type="checkbox" class="option-input" data-type="lowercase" checked>
+            <div class="option-content">
+              <i class="fa-solid fa-a option-icon"></i>
+              <div class="option-text">
+                <span class="option-label">Lowercase</span>
+                <span class="option-hint">a – z</span>
+              </div>
+            </div>
+            <div class="option-toggle"><i class="fa-solid fa-check"></i></div>
+          </label>
+          <label class="option-item">
+            <input type="checkbox" class="option-input" data-type="numbers" checked>
+            <div class="option-content">
+              <i class="fa-solid fa-hashtag option-icon"></i>
+              <div class="option-text">
+                <span class="option-label">Numbers</span>
+                <span class="option-hint">0 – 9</span>
+              </div>
+            </div>
+            <div class="option-toggle"><i class="fa-solid fa-check"></i></div>
+          </label>
+          <label class="option-item">
+            <input type="checkbox" class="option-input" data-type="symbols" checked>
+            <div class="option-content">
+              <i class="fa-solid fa-asterisk option-icon"></i>
+              <div class="option-text">
+                <span class="option-label">Symbols</span>
+                <span class="option-hint">!@#$%^&amp;*</span>
+              </div>
+            </div>
+            <div class="option-toggle"><i class="fa-solid fa-check"></i></div>
+          </label>
+        </div>
+        <p class="options-warning" id="optionsWarning">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          Select at least one character type
+        </p>
+      </section>
+
+      <!-- Generate button -->
+      <button class="generate-btn" id="generateBtn" disabled>
+        <i class="fa-solid fa-key"></i>
+        <span>Generate Password</span>
+      </button>
+
+      <!-- Last generated password -->
+      <section class="last-password" id="lastPasswordSection" aria-label="Last generated password">
+        <div class="last-password-header">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span>Previously Generated</span>
+        </div>
+        <div class="last-password-value" id="lastPasswordValue"></div>
+      </section>
+
     </div>
+  </main>
 
-    <script src="/Basic_Projects/Random-Password-Generater/script.js"></script>
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
+  <script src="script.js"></script>
 </body>
 </html>

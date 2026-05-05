@@ -1,6 +1,4 @@
-/* =====================================================
-       STATE
-       ===================================================== */
+/*   STATE */
     const state = {
       todos: [],
       filter: 'all',
@@ -22,9 +20,9 @@
     const PRIORITIES = ['low', 'medium', 'high'];
     const PRIORITY_ORDER = { high: 3, medium: 2, low: 1 };
 
-    /* =====================================================
+    /*  
        DOM REFERENCES
-       ===================================================== */
+         */
     const $ = (sel) => document.querySelector(sel);
     const $$ = (sel) => document.querySelectorAll(sel);
 
@@ -63,9 +61,7 @@
       toastContainer: $('#toastContainer')
     };
 
-    /* =====================================================
-       STORAGE
-       ===================================================== */
+    /*  STORAGE */
     function saveTodos() {
       localStorage.setItem('tasks_todos', JSON.stringify(state.todos));
     }
@@ -83,9 +79,7 @@
       if (saved) state.theme = saved;
     }
 
-    /* =====================================================
-       UTILITIES
-       ===================================================== */
+    /*  UTILITIES */
     function generateId() {
       return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
     }
@@ -123,9 +117,7 @@
       return map[cat] || '';
     }
 
-    /* =====================================================
-       TOAST
-       ===================================================== */
+    /*  TOAST */
     function showToast(message, type) {
       type = type || 'info';
       const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
@@ -139,9 +131,7 @@
       }, 2500);
     }
 
-    /* =====================================================
-       COMPLETION PARTICLES
-       ===================================================== */
+    /*  COMPLETION PARTICLES */
     function spawnParticles(x, y) {
       var colors = ['#E8A832', '#4ADE80', '#FBBF24', '#34D399', '#F0C040'];
       for (var i = 0; i < 8; i++) {
@@ -159,9 +149,7 @@
       }
     }
 
-    /* =====================================================
-       THEME
-       ===================================================== */
+    /*  THEME */
     function applyTheme() {
       document.body.setAttribute('data-theme', state.theme);
       var icon = els.themeToggle.querySelector('i');
@@ -173,9 +161,7 @@
       saveTheme();
     }
 
-    /* =====================================================
-       SEARCH
-       ===================================================== */
+    /*  SEARCH*/
     function toggleSearch(open) {
       state.searchOpen = typeof open === 'boolean' ? open : !state.searchOpen;
       if (state.searchOpen) {
@@ -189,9 +175,7 @@
       }
     }
 
-    /* =====================================================
-       ADD FORM
-       ===================================================== */
+    /* ADD FORM*/
     function toggleAddForm(open) {
       state.addFormOpen = typeof open === 'boolean' ? open : !state.addFormOpen;
       if (state.addFormOpen) {
@@ -247,9 +231,7 @@
       showToast('Task added successfully', 'success');
     }
 
-    /* =====================================================
-       TODO OPERATIONS
-       ===================================================== */
+    /*  TODO OPERATIONS */
     function toggleTodo(id, event) {
       var todo = state.todos.find(function(t) { return t.id === id; });
       if (!todo) return;
@@ -288,9 +270,7 @@
       showToast(count + ' completed task' + (count > 1 ? 's' : '') + ' cleared', 'info');
     }
 
-    /* =====================================================
-       EDIT MODAL
-       ===================================================== */
+    /*  EDIT MODAL */
     function openEditModal(id) {
       var todo = state.todos.find(function(t) { return t.id === id; });
       if (!todo) return;
@@ -331,9 +311,7 @@
       closeEditModal();
     }
 
-    /* =====================================================
-       FILTERING & SORTING
-       ===================================================== */
+    /*  FILTERING & SORTING*/
     function getVisibleTodos() {
       var filtered = state.todos.slice();
 
@@ -382,9 +360,9 @@
       return filtered;
     }
 
-    /* =====================================================
+    /*  
        RENDERING
-       ===================================================== */
+         */
     function renderStats() {
       var total = state.todos.length;
       var completed = state.todos.filter(function(t) { return t.completed; }).length;
@@ -480,9 +458,9 @@
       renderTodos();
     }
 
-    /* =====================================================
+    /*  
        DRAG & DROP
-       ===================================================== */
+         */
     function setupDragDrop() {
       els.todoList.addEventListener('dragstart', function(e) {
         var item = e.target.closest('.todo-item');
@@ -538,9 +516,9 @@
       });
     }
 
-    /* =====================================================
+    /*  
        EVENT LISTENERS
-       ===================================================== */
+         */
     function setupEvents() {
       // Theme
       els.themeToggle.addEventListener('click', toggleTheme);
@@ -709,9 +687,9 @@
       return tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement.isContentEditable;
     }
 
-    /* =====================================================
+    /*  
        INIT
-       ===================================================== */
+         */
     function init() {
       loadTheme();
       applyTheme();
