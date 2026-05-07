@@ -1,24 +1,223 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Word Scramble Game</title>
-    <link rel="stylesheet" href="/Basic_Projects/Word Scramble Game/Word Scramble.css">
+    <title>Word Scramble — Unscramble & Conquer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-
-    <div class="container">
-        <h2>Word Scramble Game</h2>
-        <p>Unscramble the word:</p>
-        <h3 id="scrambledWord"></h3>
-        <input type="text" id="userInput" placeholder="Your guess">
-        <button onclick="checkAnswer()">Submit</button>
-        <button onclick="newWord()">New Word</button>
-        <p id="result"></p>
+    <!-- Animated Background -->
+    <div class="bg-blobs" aria-hidden="true">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
     </div>
 
-    <script src="/Basic_Projects/Word Scramble Game/Word Scramble.js"></script>
+    <!-- Confetti Canvas -->
+    <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+
+    <!-- ==================== LOADING SCREEN ==================== -->
+    <section id="loading-screen" class="screen active" aria-label="Loading">
+        <div class="screen-inner" style="text-align:center;">
+            <div class="loader-text" id="loader-text" aria-live="polite"></div>
+            <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+        </div>
+    </section>
+
+    <!-- ==================== MENU SCREEN ==================== -->
+    <section id="menu-screen" class="screen" aria-label="Main Menu">
+        <div class="screen-inner">
+            <div class="gradient-border">
+                <div class="glass" style="padding: clamp(28px,5vw,44px);">
+                    <!-- Title -->
+                    <div style="text-align:center; margin-bottom: 32px;">
+                        <h1 style="font-size:clamp(1.8rem,6vw,2.6rem); font-weight:900; letter-spacing:2px; background:linear-gradient(135deg,var(--accent-light),var(--secondary-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1.2;">
+                            WORD SCRAMBLE
+                        </h1>
+                        <p style="color:var(--text-muted); font-size:0.88rem; margin-top:8px; font-weight:400;">
+                            Unscramble letters, beat the clock, climb the ranks
+                        </p>
+                    </div>
+
+                    <!-- Difficulty -->
+                    <div style="margin-bottom: 24px;">
+                        <label style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:1.5px; display:block; margin-bottom:10px;">Difficulty</label>
+                        <div class="chip-group" id="difficulty-chips" role="radiogroup" aria-label="Difficulty selection">
+                            <button class="chip active-easy" data-diff="easy" role="radio" aria-checked="true">Easy</button>
+                            <button class="chip" data-diff="medium" role="radio" aria-checked="false">Medium</button>
+                            <button class="chip" data-diff="hard" role="radio" aria-checked="false">Hard</button>
+                        </div>
+                    </div>
+
+                    <!-- Category -->
+                    <div style="margin-bottom: 28px;">
+                        <label style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:1.5px; display:block; margin-bottom:10px;">Category</label>
+                        <div class="cat-grid" id="category-grid" role="radiogroup" aria-label="Category selection">
+                            <div class="cat-card selected" data-cat="animals" role="radio" aria-checked="true" tabindex="0"><i class="fas fa-paw"></i><span>Animals</span></div>
+                            <div class="cat-card" data-cat="fruits" role="radio" aria-checked="false" tabindex="0"><i class="fas fa-apple-whole"></i><span>Fruits</span></div>
+                            <div class="cat-card" data-cat="tech" role="radio" aria-checked="false" tabindex="0"><i class="fas fa-microchip"></i><span>Tech</span></div>
+                            <div class="cat-card" data-cat="countries" role="radio" aria-checked="false" tabindex="0"><i class="fas fa-globe"></i><span>Countries</span></div>
+                            <div class="cat-card" data-cat="sports" role="radio" aria-checked="false" tabindex="0"><i class="fas fa-futbol"></i><span>Sports</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div style="display:flex; flex-direction:column; gap:12px;">
+                        <button class="btn btn-primary" id="btn-start" style="width:100%; padding:16px; font-size:1.05rem;">
+                            <i class="fas fa-play"></i> Start Game
+                        </button>
+                        <div style="display:flex; gap:12px;">
+                            <button class="btn btn-secondary" id="btn-leaderboard" style="flex:1;">
+                                <i class="fas fa-trophy"></i> Leaderboard
+                            </button>
+                            <button class="btn-icon" id="btn-theme-menu" aria-label="Toggle dark/light mode" title="Toggle theme">
+                                <i class="fas fa-moon"></i>
+                            </button>
+                            <button class="btn-icon" id="btn-sound-menu" aria-label="Toggle sound" title="Toggle sound">
+                                <i class="fas fa-volume-high"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== GAME SCREEN ==================== -->
+    <section id="game-screen" class="screen" aria-label="Game">
+        <div class="screen-inner">
+            <div class="gradient-border">
+                <div class="glass">
+                    <!-- Top Bar -->
+                    <div class="game-top-bar">
+                        <div class="stat-box" style="position:relative;" id="score-box">
+                            <i class="fas fa-star"></i>
+                            <span id="score-display">0</span>
+                        </div>
+                        <div class="timer-wrap" id="timer-wrap">
+                            <svg class="timer-svg" viewBox="0 0 100 100">
+                                <circle class="timer-track" cx="50" cy="50" r="42"/>
+                                <circle class="timer-fill" id="timer-fill" cx="50" cy="50" r="42"
+                                    stroke-dasharray="263.89" stroke-dashoffset="0"/>
+                            </svg>
+                            <span class="timer-text" id="timer-text">30</span>
+                        </div>
+                        <div class="lives-display" id="lives-display" aria-label="Lives remaining"></div>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn-icon" id="btn-theme-game" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+                            <button class="btn-icon" id="btn-sound-game" aria-label="Toggle sound"><i class="fas fa-volume-high"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Progress -->
+                    <div style="padding: 0 20px;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                            <span style="font-size:0.75rem; color:var(--text-muted); font-weight:500;" id="progress-label">Word 1 / 10</span>
+                            <span style="font-size:0.75rem; color:var(--text-muted); font-weight:500;" id="category-label">Animals</span>
+                        </div>
+                        <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%;"></div></div>
+                    </div>
+
+                    <!-- Word Area -->
+                    <div style="padding: 16px 20px 0;">
+                        <div class="tiles-container" id="tiles-container" aria-label="Scrambled letters"></div>
+                        <div class="feedback" id="feedback" aria-live="polite"></div>
+                    </div>
+
+                    <!-- Input Area -->
+                    <div style="padding: 12px 20px 20px;">
+                        <input type="text" class="game-input" id="answer-input"
+                            placeholder="Type your answer..."
+                            autocomplete="off" autocapitalize="off" spellcheck="false"
+                            aria-label="Your answer">
+                        <div class="input-hint" id="input-hint"></div>
+
+                        <!-- Action Buttons -->
+                        <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">
+                            <button class="btn btn-primary" id="btn-check" style="flex:1; min-width:120px;">
+                                <i class="fas fa-check"></i> Check
+                            </button>
+                            <button class="btn btn-secondary btn-sm" id="btn-hint" title="Reveal a letter (-5 pts)">
+                                <i class="fas fa-lightbulb"></i> Hint <span id="hint-count"></span>
+                            </button>
+                            <button class="btn btn-secondary btn-sm" id="btn-shuffle" title="Reshuffle letters">
+                                <i class="fas fa-shuffle"></i>
+                            </button>
+                            <button class="btn btn-primary btn-sm" id="btn-next" style="display:none; flex:1; min-width:120px;">
+                                <i class="fas fa-forward"></i> Next Word
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== GAME OVER SCREEN ==================== -->
+    <section id="gameover-screen" class="screen" aria-label="Game Over">
+        <div class="screen-inner">
+            <div class="gradient-border">
+                <div class="glass" style="padding: clamp(28px,5vw,44px);">
+                    <div style="text-align:center; margin-bottom:24px;">
+                        <div style="font-size:3rem; margin-bottom:8px; color:var(--secondary);" id="go-icon"><i class="fas fa-flag-checkered"></i></div>
+                        <h2 style="font-size:1.8rem; font-weight:800;" id="go-title">Game Over</h2>
+                        <p style="color:var(--text-muted); font-size:0.88rem;" id="go-subtitle">Here's how you did</p>
+                    </div>
+
+                    <div class="stat-grid" style="margin-bottom:24px;" id="go-stats"></div>
+
+                    <!-- Save to Leaderboard -->
+                    <div style="margin-bottom:20px; display:flex; gap:10px;" id="go-save-row">
+                        <input type="text" class="game-input" id="go-name-input" placeholder="Your name..."
+                            style="flex:1; font-size:0.9rem; text-transform:none; letter-spacing:0;" maxlength="20">
+                        <button class="btn btn-primary btn-sm" id="btn-save-score">
+                            <i class="fas fa-save"></i> Save
+                        </button>
+                    </div>
+                    <p style="font-size:0.78rem; color:var(--accent); text-align:center; margin-bottom:16px; display:none;" id="go-saved-msg">Score saved to leaderboard!</p>
+
+                    <div style="display:flex; gap:12px;">
+                        <button class="btn btn-primary" id="btn-play-again" style="flex:1;">
+                            <i class="fas fa-redo"></i> Play Again
+                        </button>
+                        <button class="btn btn-secondary" id="btn-go-menu" style="flex:1;">
+                            <i class="fas fa-home"></i> Menu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== LEADERBOARD SCREEN ==================== -->
+    <section id="leaderboard-screen" class="screen" aria-label="Leaderboard">
+        <div class="screen-inner">
+            <div class="gradient-border">
+                <div class="glass" style="padding: clamp(24px,5vw,40px);">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+                        <h2 style="font-size:1.4rem; font-weight:800;"><i class="fas fa-trophy" style="color:var(--secondary); margin-right:8px;"></i>Leaderboard</h2>
+                        <button class="btn-icon" id="btn-lb-back" aria-label="Back"><i class="fas fa-arrow-left"></i></button>
+                    </div>
+
+                    <!-- LB Header -->
+                    <div class="lb-row" style="border-bottom:2px solid var(--tile-border); font-weight:700; font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">
+                        <span style="text-align:center;">#</span><span>Name</span><span style="text-align:right;">Score</span><span style="text-align:center;">Level</span>
+                    </div>
+                    <div id="lb-body" style="max-height:360px; overflow-y:auto;"></div>
+                    <p id="lb-empty" style="text-align:center; color:var(--text-muted); padding:30px 0; font-size:0.9rem; display:none;">No scores yet. Be the first!</p>
+
+                    <div style="margin-top:16px; text-align:center;">
+                        <button class="btn btn-secondary btn-sm" id="btn-lb-clear">
+                            <i class="fas fa-trash"></i> Clear All
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
 </body>
 </html>
