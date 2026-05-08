@@ -41,7 +41,7 @@
   },
   {
     "name": "Random-Password-Generater",
-    "desc": "simple Random-Password-Generater which generate you a Strong Password.",
+    "desc": "A simple Random Password Generator that creates strong and secure passwords based on user-selected criteria such as length, inclusion of uppercase letters, lowercase letters, numbers, and special characters.",
     "meta": "Random-Password-Generater"
   },
   {
@@ -51,12 +51,12 @@
   },
   {
     "name": "QR-code-Generater",
-    "desc": "A Basic QR Code Generator.",
+    "desc": "A simple QR code generator that allows users to create QR codes for URLs, text, or other data. ",
     "meta": "QR-code-Generater"
   },
   {
     "name": "Mouse-Event",
-    "desc": "A simple project demonstrates different JavaScript events such as click, hover, drag, and keyboard interactions. It provides a clean and modern UI with real-time event responses.",
+    "desc": "A simple project demonstrates different JavaScript events such as click, hover, drag, and keyboard interactions.",
     "meta": "Mouse-Event"
   },
   {
