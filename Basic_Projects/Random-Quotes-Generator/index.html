@@ -1,19 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Random Quote Generator</title>
-  <link rel="shortcut icon" href="/Basic_Projects/Random-Quotes-Generator/q-solid-full.svg" type="image/x-icon">
-  <link rel="stylesheet" href="/Basic_Projects/Random-Quotes-Generator/Random-Quotes-Generator.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuoteVerse — Premium Quote Generator</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script>
+    tailwind.config={darkMode:'class',theme:{extend:{colors:{copper:{300:'#e8b88a',400:'#d99658',500:'#c8956c',600:'#b07d4f',700:'#926342'},teal:{400:'#4a9e8e',500:'#3d8b7d',600:'#317468'},surface:{dark:'#0a0a0f',light:'#f7f2eb'}},fontFamily:{display:['Playfair Display','serif'],sans:['DM Sans','sans-serif'],urdu:['Noto Naskh Arabic','serif']}}}}
+</script>
 </head>
-<body>
+<body class="dark:bg-surface-dark bg-surface-light dark:text-gray-100 text-gray-900 noise">
 
-  <div class="container">
-    <h1> Inspirational Quote</h1>
-    <p id="quote">Click below to get inspired!</p>
-    <button id="newQuote">New Quote</button>
+<div class="blob blob-1" id="blob1"></div>
+<div class="blob blob-2" id="blob2"></div>
+<div class="blob blob-3" id="blob3"></div>
+<div id="particles"></div>
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Header -->
+<header class="fixed top-0 left-0 right-0 z-50 glass glass-header" style="backdrop-filter:blur(30px)">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-2 group" onclick="event.preventDefault()">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),var(--teal))">
+        <i class="fa-solid fa-quote-left text-white text-sm"></i>
+      </div>
+      <span class="font-display font-bold text-lg tracking-tight dark:text-white text-gray-900 group-hover:text-copper-500 transition-colors">QuoteVerse</span>
+    </a>
+    <div class="search-wrap collapsed hidden sm:flex items-center gap-2 glass rounded-full px-3 py-1.5 relative" id="searchWrap">
+      <button onclick="toggleSearch()" class="text-gray-400 hover:text-copper-500 transition-colors flex-shrink-0" aria-label="Toggle search">
+        <i class="fa-solid fa-magnifying-glass text-sm"></i>
+      </button>
+      <input type="text" id="searchInput" placeholder="Search quotes..." class="bg-transparent border-none outline-none text-sm dark:text-white text-gray-900 w-0" oninput="handleSearch(this.value)" onfocus="handleSearch(this.value)" onblur="setTimeout(()=>closeSearchResults(),200)">
+      <div class="search-results absolute top-full left-0 right-0 mt-2 glass rounded-2xl p-2 hidden" id="searchResults" style="min-width:320px"></div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="toggleMobileSearch()" class="sm:hidden w-9 h-9 rounded-xl flex items-center justify-center dark:text-gray-400 text-gray-600 dark:hover:text-white hover:text-gray-900 transition-colors" aria-label="Search"><i class="fa-solid fa-magnifying-glass text-sm"></i></button>
+      <div class="relative" id="langDropdown">
+        <button onclick="toggleLangMenu()" class="h-9 px-3 rounded-xl glass flex items-center gap-2 text-sm font-medium dark:text-gray-300 text-gray-600 dark:hover:text-white hover:text-gray-900 transition-colors" aria-label="Switch language">
+          <i class="fa-solid fa-globe text-xs"></i><span id="langLabel">EN</span><i class="fa-solid fa-chevron-down text-[10px] ml-1"></i>
+        </button>
+        <div class="share-dropdown absolute top-full right-0 mt-2 glass rounded-xl p-1.5 min-w-[120px]" id="langMenu">
+          <button onclick="setLanguage('en')" class="w-full text-left px-3 py-2 rounded-lg text-sm dark:text-gray-300 text-gray-600 dark:hover:bg-white/10 hover:bg-black/5 transition-colors flex items-center gap-2"><span>🇬🇧</span> English</button>
+          <button onclick="setLanguage('ur')" class="w-full text-left px-3 py-2 rounded-lg text-sm dark:text-gray-300 text-gray-600 dark:hover:bg-white/10 hover:bg-black/5 transition-colors flex items-center gap-2"><span>🇵🇰</span> اردو</button>
+        </div>
+      </div>
+      <button onclick="toggleTheme()" class="w-9 h-9 rounded-xl glass flex items-center justify-center dark:text-gray-400 text-gray-600 dark:hover:text-white hover:text-gray-900 transition-colors" aria-label="Toggle theme" id="themeBtn"><i class="fa-solid fa-moon text-sm" id="themeIcon"></i></button>
+      <button onclick="toggleFavPanel()" class="w-9 h-9 rounded-xl glass flex items-center justify-center dark:text-gray-400 text-gray-600 dark:hover:text-white hover:text-gray-900 transition-colors relative" aria-label="Favorites">
+        <i class="fa-solid fa-heart text-sm"></i>
+        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center text-white hidden" id="favCount" style="background:var(--accent)">0</span>
+      </button>
+    </div>
   </div>
-  <script src="/Basic_Projects/Random-Quotes-Generator/Random-Quotes-Generator.js"></script>
+</header>
+
+<!-- Mobile search bar -->
+<div class="fixed top-16 left-0 right-0 z-40 glass p-3 hidden" id="mobileSearch" style="backdrop-filter:blur(30px)">
+  <div class="flex items-center gap-2">
+    <input type="text" id="mobileSearchInput" placeholder="Search quotes..." class="flex-1 bg-transparent border-none outline-none text-sm dark:text-white text-gray-900 px-3 py-2" oninput="handleSearch(this.value)">
+    <button onclick="toggleMobileSearch()" class="w-8 h-8 rounded-lg dark:hover:bg-white/10 hover:bg-black/5 flex items-center justify-center dark:text-gray-400 text-gray-600"><i class="fa-solid fa-xmark text-sm"></i></button>
+  </div>
+  <div class="search-results mt-2 glass rounded-2xl p-2 hidden" id="mobileSearchResults" style="max-height:250px;overflow-y:auto"></div>
+</div>
+
+<!-- Favorites overlay -->
+<div class="fav-overlay fixed inset-0 bg-black/40 z-50" id="favOverlay" onclick="toggleFavPanel()"></div>
+
+<!-- Favorites panel -->
+<aside class="fav-panel fixed top-0 right-0 bottom-0 w-full max-w-sm z-50 dark:bg-surface-dark/95 bg-surface-light/95 backdrop-blur-xl flex flex-col" id="favPanel" style="border-left:1px solid rgba(255,255,255,.1)">
+  <div class="flex items-center justify-between p-5 border-b dark:border-white/10 border-black/10">
+    <h2 class="font-display font-bold text-lg" id="favTitle">Saved Quotes</h2>
+    <div class="flex items-center gap-2">
+      <button onclick="clearAllFavorites()" class="text-xs px-3 py-1.5 rounded-lg dark:text-red-400 text-red-500 dark:hover:bg-red-500/10 hover:bg-red-50 transition-colors" id="clearFavBtn">Clear All</button>
+      <button onclick="toggleFavPanel()" class="w-8 h-8 rounded-lg dark:hover:bg-white/10 hover:bg-black/5 flex items-center justify-center transition-colors" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+  </div>
+  <div class="flex-1 overflow-y-auto p-4 space-y-3" id="favList">
+    <div class="flex flex-col items-center justify-center h-full dark:text-gray-500 text-gray-400 text-sm" id="favEmpty">
+      <i class="fa-regular fa-heart text-3xl mb-3 opacity-40"></i>
+      <p id="favEmptyText">No saved quotes yet</p>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="relative z-10 pt-24 pb-16 px-4 sm:px-6 min-h-screen flex flex-col items-center">
+  <div class="text-center mb-8 sm:mb-10">
+    <h1 class="font-display text-3xl sm:text-4xl md:text-5xl dark:text-white text-gray-900 mb-3 leading-tight" style="font-weight:900" id="heroTitle">Discover Wisdom,<br><span style="background:linear-gradient(135deg,var(--accent),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">One Quote at a Time</span></h1>
+    <p class="dark:text-gray-400 text-gray-500 text-sm sm:text-base max-w-md mx-auto" id="heroSub">Curated quotes across categories, in your language of choice</p>
+  </div>
+  <div class="flex flex-wrap justify-center gap-2 mb-8 sm:mb-10" id="categoryFilters" role="tablist"></div>
+  <div class="w-full max-w-2xl mb-8" id="quoteWrapper">
+    <div class="glass rounded-3xl p-8 sm:p-10 hidden" id="quoteSkeleton">
+      <div class="skeleton h-6 w-full mb-4"></div>
+      <div class="skeleton h-6 w-5/6 mb-4"></div>
+      <div class="skeleton h-6 w-4/6 mb-6"></div>
+      <div class="skeleton h-4 w-32"></div>
+    </div>
+    <div class="quote-card glass rounded-3xl p-8 sm:p-10 relative visible" id="quoteCard">
+      <div class="quote-mark top-4 left-6 dark:text-white text-gray-900">"</div>
+      <div class="relative z-10 min-h-[120px] flex flex-col justify-center" dir="ltr" id="quoteContent">
+        <p class="quote-text font-display text-xl sm:text-2xl md:text-3xl dark:text-white text-gray-900 leading-relaxed mb-6" id="quoteText" style="font-weight:600"></p>
+        <div class="flex items-center gap-3 flex-wrap">
+          <span class="author-text text-sm font-medium dark:text-copper-400 text-copper-600" id="quoteAuthor"></span>
+          <span class="text-xs px-2.5 py-1 rounded-full font-medium dark:bg-white/10 bg-black/5 dark:text-gray-300 text-gray-600" id="quoteCategory"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-wrap justify-center gap-3 mb-6" id="actionButtons">
+    <button onclick="generateQuote()" class="gen-btn action-btn text-white font-semibold px-7 py-3 rounded-2xl text-sm flex items-center gap-2.5 relative z-10" aria-label="Generate new quote">
+      <i class="fa-solid fa-shuffle text-xs"></i><span id="genBtnText">New Quote</span>
+    </button>
+    <button onclick="copyQuote()" class="action-btn glass px-4 py-3 rounded-2xl text-sm dark:text-gray-300 text-gray-600 dark:hover:text-white hover:text-gray-900" aria-label="Copy" title="Copy"><i class="fa-regular fa-copy"></i></button>
+    <div class="relative" id="shareWrap">
+      <button onclick="toggleShare()" class="action-btn glass px-4 py-3 rounded-2xl text-sm dark:text-gray-300 text-gray-600 dark:hover:text-white hover:text-gray-900" aria-label="Share" title="Share"><i class="fa-solid fa-share-nodes"></i></button>
+      <div class="share-dropdown absolute bottom-full left-1/2 -translate-x-1/2 mb-2 glass rounded-2xl p-2 flex gap-1" id="shareDropdown">
+        <button onclick="shareQuote('whatsapp')" class="w-10 h-10 rounded-xl flex items-center justify-center text-green-500 dark:hover:bg-white/10 hover:bg-black/5 transition-colors" title="WhatsApp"><i class="fa-brands fa-whatsapp text-lg"></i></button>
+        <button onclick="shareQuote('facebook')" class="w-10 h-10 rounded-xl flex items-center justify-center text-blue-500 dark:hover:bg-white/10 hover:bg-black/5 transition-colors" title="Facebook"><i class="fa-brands fa-facebook-f text-lg"></i></button>
+        <button onclick="shareQuote('twitter')" class="w-10 h-10 rounded-xl flex items-center justify-center dark:text-gray-300 text-gray-700 dark:hover:bg-white/10 hover:bg-black/5 transition-colors" title="Twitter"><i class="fa-brands fa-x-twitter text-lg"></i></button>
+      </div>
+    </div>
+    <button onclick="speakQuote()" class="action-btn glass px-4 py-3 rounded-2xl text-sm dark:text-gray-300 text-gray-600 dark:hover:text-white hover:text-gray-900" aria-label="Read aloud" title="Text to Speech" id="ttsBtn"><i class="fa-solid fa-volume-high" id="ttsIcon"></i></button>
+    <button onclick="downloadQuote()" class="action-btn glass px-4 py-3 rounded-2xl text-sm dark:text-gray-300 text-gray-600 dark:hover:text-white hover:text-gray-900" aria-label="Download" title="Download Image"><i class="fa-solid fa-download"></i></button>
+    <button onclick="toggleFavorite()" class="action-btn glass px-4 py-3 rounded-2xl text-sm dark:text-gray-300 text-gray-600 dark:hover:text-white hover:text-gray-900" aria-label="Save" title="Save to Favorites" id="saveBtn"><i class="fa-regular fa-heart" id="saveIcon"></i></button>
+  </div>
+  <div class="flex items-center gap-3">
+    <div class="toggle-track" id="autoToggle" onclick="toggleAutoGenerate()" role="switch" aria-checked="false" tabindex="0" aria-label="Auto-generate"><div class="toggle-thumb"></div></div>
+    <span class="text-xs dark:text-gray-400 text-gray-500" id="autoLabel">Auto-generate every 8s</span>
+  </div>
+  <div class="mt-8 text-xs dark:text-gray-600 text-gray-400" id="quoteCounter"></div>
+</main>
+
+<footer class="relative z-10 text-center py-6 text-xs dark:text-gray-600 text-gray-400 border-t dark:border-white/5 border-black/5">
+  <p>Crafted with <i class="fa-solid fa-heart text-copper-500 text-[10px]"></i> by QuoteVerse</p>
+</footer>
+
+<!-- Hidden canvas for download -->
+<canvas id="dlCanvas" style="display:none"></canvas>
+<script src="script.js"></script>
 </body>
 </html>

@@ -121,7 +121,7 @@ word-scramble/
 └── <script> ← 500+ lines of ES6+ JavaScript
 
 text
-
+ 
 
 ## Customization
 
