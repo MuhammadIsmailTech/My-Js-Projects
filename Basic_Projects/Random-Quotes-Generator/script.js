@@ -1,8 +1,12 @@
-// ==============================
+// ============================================
 // QuoteVerse - Premium Quote Generator
-// ==============================
+// Complete script.js
+// ============================================
 
-// Quotes Database
+// ============================================
+// QUOTES DATABASE
+// ============================================
+
 const quotes = {
   en: [
     {
@@ -11,19 +15,14 @@ const quotes = {
       category: "Motivation"
     },
     {
-      text: "The future depends on what you do today.",
-      author: "Mahatma Gandhi",
-      category: "Life"
-    },
-    {
       text: "Dream big and dare to fail.",
       author: "Norman Vaughan",
       category: "Dream"
     },
     {
-      text: "Your limitation—it's only your imagination.",
-      author: "Unknown",
-      category: "Mindset"
+      text: "The future depends on what you do today.",
+      author: "Mahatma Gandhi",
+      category: "Life"
     },
     {
       text: "Push yourself because no one else is going to do it for you.",
@@ -31,17 +30,27 @@ const quotes = {
       category: "Motivation"
     },
     {
-      text: "Small steps every day lead to big results.",
-      author: "Unknown",
-      category: "Growth"
+      text: "Every moment is a fresh beginning.",
+      author: "T. S. Eliot",
+      category: "Life"
+    },
+    {
+      text: "Believe you can and you're halfway there.",
+      author: "Theodore Roosevelt",
+      category: "Mindset"
     }
   ],
 
   ur: [
     {
-      text: "کامیابی آخری منزل نہیں، ناکامی موت نہیں، اصل ہمت آگے بڑھتے رہنے میں ہے۔",
+      text: "کامیابی آخری منزل نہیں، ناکامی موت نہیں، اصل ہمت آگے بڑھنے میں ہے۔",
       author: "ونسٹن چرچل",
       category: "حوصلہ"
+    },
+    {
+      text: "بڑے خواب دیکھو اور ناکامی سے مت ڈرو۔",
+      author: "نامعلوم",
+      category: "خواب"
     },
     {
       text: "آپ کا مستقبل آج کے فیصلوں پر منحصر ہے۔",
@@ -49,12 +58,7 @@ const quotes = {
       category: "زندگی"
     },
     {
-      text: "بڑے خواب دیکھو اور کوشش سے مت ڈرو۔",
-      author: "نامعلوم",
-      category: "خواب"
-    },
-    {
-      text: "محنت انسان کو وہاں پہنچا دیتی ہے جہاں قسمت بھی ساتھ دیتی ہے۔",
+      text: "محنت وہ چابی ہے جو کامیابی کا دروازہ کھولتی ہے۔",
       author: "نامعلوم",
       category: "کامیابی"
     },
@@ -66,138 +70,359 @@ const quotes = {
   ]
 };
 
-// ==============================
-// Variables
-// ==============================
+// ============================================
+// VARIABLES
+// ============================================
 
 let currentLanguage = "en";
-let currentQuoteIndex = 0;
 let currentCategory = "All";
-let autoGenerate = false;
-let autoInterval;
-let favorites = JSON.parse(localStorage.getItem("quoteverse-favorites")) || [];
+let currentQuote = null;
 
-// ==============================
-// Elements
-// ==============================
+let autoGenerate = false;
+let autoInterval = null;
+
+let favorites =
+  JSON.parse(localStorage.getItem("quoteverse-favorites")) || [];
+
+// ============================================
+// ELEMENTS
+// ============================================
 
 const quoteText = document.getElementById("quoteText");
 const quoteAuthor = document.getElementById("quoteAuthor");
 const quoteCategory = document.getElementById("quoteCategory");
-const quoteCounter = document.getElementById("quoteCounter");
-
-const saveIcon = document.getElementById("saveIcon");
-const favCount = document.getElementById("favCount");
-
-const favPanel = document.getElementById("favPanel");
-const favOverlay = document.getElementById("favOverlay");
-const favList = document.getElementById("favList");
-const favEmpty = document.getElementById("favEmpty");
 
 const searchResults = document.getElementById("searchResults");
-const mobileSearchResults = document.getElementById("mobileSearchResults");
+const mobileSearchResults =
+  document.getElementById("mobileSearchResults");
 
-// ==============================
-// Init
-// ==============================
+// ============================================
+// PAGE LOAD
+// ============================================
 
-window.onload = () => {
-  generateQuote();
-  updateFavoriteCount();
-  renderFavorites();
+window.addEventListener("DOMContentLoaded", () => {
+
+  loadTheme();
+
   createCategories();
-  createParticles();
-};
 
-// ==============================
-// Generate Quote
-// ==============================
+  generateQuote();
+
+  renderFavorites();
+
+  updateFavoriteCount();
+
+  createParticles();
+});
+
+// ============================================
+// GENERATE RANDOM QUOTE
+// ============================================
 
 function generateQuote() {
 
-  const allQuotes = quotes[currentLanguage];
-
-  let filteredQuotes = allQuotes;
+  let filteredQuotes = quotes[currentLanguage];
 
   if (currentCategory !== "All") {
-    filteredQuotes = allQuotes.filter(
-      q => q.category === currentCategory
+
+    filteredQuotes = filteredQuotes.filter(
+      quote => quote.category === currentCategory
     );
   }
 
-  currentQuoteIndex = Math.floor(Math.random() * filteredQuotes.length);
+  const randomIndex =
+    Math.floor(Math.random() * filteredQuotes.length);
 
-  const quote = filteredQuotes[currentQuoteIndex];
+  currentQuote = filteredQuotes[randomIndex];
 
-  quoteText.innerText = quote.text;
-  quoteAuthor.innerText = `— ${quote.author}`;
-  quoteCategory.innerText = quote.category;
+  quoteText.style.opacity = "0";
 
-  if (currentLanguage === "ur") {
-    document.getElementById("quoteContent").dir = "rtl";
-    quoteText.classList.add("font-urdu");
-  } else {
-    document.getElementById("quoteContent").dir = "ltr";
-    quoteText.classList.remove("font-urdu");
-  }
+  setTimeout(() => {
 
-  quoteCounter.innerText =
-    `${filteredQuotes.indexOf(quote) + 1} / ${filteredQuotes.length}`;
+    quoteText.innerText = currentQuote.text;
 
-  updateSaveButton();
+    quoteAuthor.innerText =
+      "— " + currentQuote.author;
+
+    quoteCategory.innerText =
+      currentQuote.category;
+
+    if (currentLanguage === "ur") {
+
+      document
+        .getElementById("quoteContent")
+        .setAttribute("dir", "rtl");
+
+    } else {
+
+      document
+        .getElementById("quoteContent")
+        .setAttribute("dir", "ltr");
+    }
+
+    quoteText.style.opacity = "1";
+
+    updateSaveButton();
+
+  }, 200);
 }
 
-// ==============================
-// Theme Toggle
-// ==============================
+// ============================================
+// THEME TOGGLE
+// ============================================
 
 function toggleTheme() {
 
-  document.documentElement.classList.toggle("dark");
+  const html = document.documentElement;
 
   const icon = document.getElementById("themeIcon");
 
-  if (document.documentElement.classList.contains("dark")) {
-    icon.className = "fa-solid fa-moon text-sm";
+  html.classList.toggle("dark");
+
+  if (html.classList.contains("dark")) {
+
     localStorage.setItem("theme", "dark");
+
+    icon.className =
+      "fa-solid fa-moon text-sm";
+
   } else {
-    icon.className = "fa-solid fa-sun text-sm";
+
     localStorage.setItem("theme", "light");
+
+    icon.className =
+      "fa-solid fa-sun text-sm";
   }
 }
 
-// Load theme
-if (localStorage.getItem("theme") === "light") {
-  document.documentElement.classList.remove("dark");
+function loadTheme() {
+
+  const savedTheme =
+    localStorage.getItem("theme");
+
+  const icon = document.getElementById("themeIcon");
+
+  if (savedTheme === "light") {
+
+    document.documentElement
+      .classList.remove("dark");
+
+    icon.className =
+      "fa-solid fa-sun text-sm";
+
+  } else {
+
+    document.documentElement
+      .classList.add("dark");
+
+    icon.className =
+      "fa-solid fa-moon text-sm";
+  }
 }
 
-// ==============================
-// Language Switch
-// ==============================
+// ============================================
+// LANGUAGE FUNCTIONS
+// ============================================
+
+function toggleLangMenu(event) {
+
+  if (event) event.stopPropagation();
+
+  const menu = document.getElementById("langMenu");
+
+  if (menu.style.display === "block") {
+
+    menu.style.display = "none";
+
+  } else {
+
+    menu.style.display = "block";
+  }
+}
+
+function closeLangMenu() {
+
+  document.getElementById("langMenu").style.display = "none";
+}
 
 function setLanguage(lang) {
 
   currentLanguage = lang;
 
-  document.getElementById("langLabel").innerText =
+  const label = document.getElementById("langLabel");
+
+  label.innerText =
     lang === "en" ? "EN" : "اردو";
 
-  generateQuote();
   createCategories();
+
+  generateQuote();
+
   closeLangMenu();
+
+  showToast(
+    lang === "en"
+      ? "Language changed to English"
+      : "زبان اردو میں تبدیل ہوگئی"
+  );
 }
 
-function toggleLangMenu() {
-  document.getElementById("langMenu").classList.toggle("show");
+// ============================================
+// SEARCH FUNCTIONS
+// ============================================
+
+function toggleSearch() {
+
+  const wrap =
+    document.getElementById("searchWrap");
+
+  const input =
+    document.getElementById("searchInput");
+
+  wrap.classList.toggle("collapsed");
+
+  if (!wrap.classList.contains("collapsed")) {
+
+    input.style.width = "220px";
+
+    input.focus();
+
+  } else {
+
+    input.style.width = "0px";
+  }
 }
 
-function closeLangMenu() {
-  document.getElementById("langMenu").classList.remove("show");
+function toggleMobileSearch() {
+
+  document
+    .getElementById("mobileSearch")
+    .classList.toggle("hidden");
 }
 
-// ==============================
-// Copy Quote
-// ==============================
+function handleSearch(value) {
+
+  if (value.trim() === "") {
+
+    closeSearchResults();
+
+    return;
+  }
+
+  const results =
+    quotes[currentLanguage].filter(quote =>
+      quote.text
+        .toLowerCase()
+        .includes(value.toLowerCase())
+    );
+
+  displaySearchResults(results);
+}
+
+function displaySearchResults(results) {
+
+  searchResults.innerHTML = "";
+  mobileSearchResults.innerHTML = "";
+
+  if (results.length === 0) {
+
+    closeSearchResults();
+
+    return;
+  }
+
+  searchResults.classList.remove("hidden");
+
+  mobileSearchResults.classList.remove("hidden");
+
+  results.forEach(quote => {
+
+    const createItem = () => {
+
+      const item = document.createElement("div");
+
+      item.className =
+        "p-3 rounded-xl cursor-pointer dark:hover:bg-white/10 hover:bg-black/5 transition";
+
+      item.innerHTML = `
+        <p class="text-sm mb-1">${quote.text}</p>
+        <span class="text-xs opacity-70">${quote.author}</span>
+      `;
+
+      item.onclick = () => {
+
+        currentQuote = quote;
+
+        quoteText.innerText = quote.text;
+
+        quoteAuthor.innerText =
+          "— " + quote.author;
+
+        quoteCategory.innerText =
+          quote.category;
+
+        closeSearchResults();
+      };
+
+      return item;
+    };
+
+    searchResults.appendChild(createItem());
+
+    mobileSearchResults.appendChild(createItem());
+  });
+}
+
+function closeSearchResults() {
+
+  searchResults.classList.add("hidden");
+
+  mobileSearchResults.classList.add("hidden");
+}
+
+// ============================================
+// CATEGORY FILTERS
+// ============================================
+
+function createCategories() {
+
+  const container =
+    document.getElementById("categoryFilters");
+
+  container.innerHTML = "";
+
+  const categories = [
+    "All",
+    ...new Set(
+      quotes[currentLanguage].map(
+        quote => quote.category
+      )
+    )
+  ];
+
+  categories.forEach(category => {
+
+    const btn = document.createElement("button");
+
+    btn.className =
+      "px-4 py-2 rounded-2xl glass text-sm transition hover:scale-105";
+
+    btn.innerText = category;
+
+    btn.onclick = () => {
+
+      currentCategory = category;
+
+      generateQuote();
+    };
+
+    container.appendChild(btn);
+  });
+}
+
+// ============================================
+// COPY QUOTE
+// ============================================
 
 function copyQuote() {
 
@@ -209,12 +434,15 @@ function copyQuote() {
   showToast("Quote copied!");
 }
 
-// ==============================
-// Share Quote
-// ==============================
+// ============================================
+// SHARE
+// ============================================
 
 function toggleShare() {
-  document.getElementById("shareDropdown").classList.toggle("show");
+
+  document
+    .getElementById("shareDropdown")
+    .classList.toggle("show");
 }
 
 function shareQuote(platform) {
@@ -225,64 +453,71 @@ function shareQuote(platform) {
   let url = "";
 
   if (platform === "whatsapp") {
-    url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+
+    url =
+      `https://wa.me/?text=${encodeURIComponent(text)}`;
   }
 
   if (platform === "facebook") {
-    url = `https://www.facebook.com/sharer/sharer.php?u=&quote=${encodeURIComponent(text)}`;
+
+    url =
+      `https://www.facebook.com/sharer/sharer.php?quote=${encodeURIComponent(text)}`;
   }
 
   if (platform === "twitter") {
-    url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+
+    url =
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
   }
 
   window.open(url, "_blank");
 }
 
-// ==============================
-// Text To Speech
-// ==============================
-
-let speech;
+// ============================================
+// TEXT TO SPEECH
+// ============================================
 
 function speakQuote() {
 
-  if (speechSynthesis.speaking) {
-    speechSynthesis.cancel();
-    return;
-  }
+  speechSynthesis.cancel();
 
-  speech = new SpeechSynthesisUtterance(
-    `${quoteText.innerText} by ${quoteAuthor.innerText}`
-  );
+  const speech =
+    new SpeechSynthesisUtterance(
+      quoteText.innerText
+    );
 
-  speech.lang = currentLanguage === "ur" ? "ur-PK" : "en-US";
+  speech.lang =
+    currentLanguage === "ur"
+      ? "ur-PK"
+      : "en-US";
+
+  speech.rate = 0.9;
 
   speechSynthesis.speak(speech);
 }
 
-// ==============================
-// Favorites
-// ==============================
+// ============================================
+// FAVORITES
+// ============================================
 
 function toggleFavorite() {
 
-  const quote = {
-    text: quoteText.innerText,
-    author: quoteAuthor.innerText,
-    category: quoteCategory.innerText,
-    language: currentLanguage
-  };
-
   const exists = favorites.find(
-    q => q.text === quote.text
+    item => item.text === currentQuote.text
   );
 
   if (exists) {
-    favorites = favorites.filter(q => q.text !== quote.text);
+
+    favorites = favorites.filter(
+      item => item.text !== currentQuote.text
+    );
+
     showToast("Removed from favorites");
+
   } else {
-    favorites.push(quote);
+
+    favorites.push(currentQuote);
+
     showToast("Saved to favorites");
   }
 
@@ -291,62 +526,70 @@ function toggleFavorite() {
     JSON.stringify(favorites)
   );
 
-  updateFavoriteCount();
   renderFavorites();
+
+  updateFavoriteCount();
+
   updateSaveButton();
 }
 
 function updateSaveButton() {
 
+  const saveIcon =
+    document.getElementById("saveIcon");
+
   const exists = favorites.find(
-    q => q.text === quoteText.innerText
+    item => item.text === currentQuote.text
   );
 
   if (exists) {
-    saveIcon.className = "fa-solid fa-heart";
-  } else {
-    saveIcon.className = "fa-regular fa-heart";
-  }
-}
 
-function updateFavoriteCount() {
+    saveIcon.className =
+      "fa-solid fa-heart";
 
-  if (favorites.length > 0) {
-    favCount.classList.remove("hidden");
-    favCount.innerText = favorites.length;
   } else {
-    favCount.classList.add("hidden");
+
+    saveIcon.className =
+      "fa-regular fa-heart";
   }
 }
 
 function renderFavorites() {
 
+  const favList =
+    document.getElementById("favList");
+
   favList.innerHTML = "";
 
   if (favorites.length === 0) {
-    favList.appendChild(favEmpty);
+
+    favList.innerHTML = `
+      <div class="text-center opacity-60 mt-10">
+        No saved quotes yet
+      </div>
+    `;
+
     return;
   }
 
   favorites.forEach((quote, index) => {
 
-    const div = document.createElement("div");
+    const card = document.createElement("div");
 
-    div.className =
-      "glass rounded-2xl p-4";
+    card.className =
+      "glass rounded-2xl p-4 mb-3";
 
-    div.innerHTML = `
-      <p class="text-sm mb-3">${quote.text}</p>
+    card.innerHTML = `
+      <p class="text-sm mb-2">${quote.text}</p>
       <div class="flex justify-between items-center">
         <span class="text-xs opacity-70">${quote.author}</span>
-        <button onclick="removeFavorite(${index})"
-        class="text-red-500">
-          <i class="fa-solid fa-trash"></i>
+        <button onclick="removeFavorite(${index})">
+          <i class="fa-solid fa-trash text-red-500"></i>
         </button>
       </div>
     `;
 
-    favList.appendChild(div);
+    favList.appendChild(card);
   });
 }
 
@@ -360,7 +603,9 @@ function removeFavorite(index) {
   );
 
   renderFavorites();
+
   updateFavoriteCount();
+
   updateSaveButton();
 }
 
@@ -371,31 +616,57 @@ function clearAllFavorites() {
   localStorage.removeItem("quoteverse-favorites");
 
   renderFavorites();
+
   updateFavoriteCount();
+}
+
+function updateFavoriteCount() {
+
+  const favCount =
+    document.getElementById("favCount");
+
+  if (favorites.length > 0) {
+
+    favCount.classList.remove("hidden");
+
+    favCount.innerText = favorites.length;
+
+  } else {
+
+    favCount.classList.add("hidden");
+  }
 }
 
 function toggleFavPanel() {
 
-  favPanel.classList.toggle("open");
-  favOverlay.classList.toggle("show");
+  document
+    .getElementById("favPanel")
+    .classList.toggle("open");
+
+  document
+    .getElementById("favOverlay")
+    .classList.toggle("show");
 }
 
-// ==============================
-// Auto Generate
-// ==============================
+// ============================================
+// AUTO GENERATE
+// ============================================
 
 function toggleAutoGenerate() {
 
   autoGenerate = !autoGenerate;
 
-  const toggle = document.getElementById("autoToggle");
+  const toggle =
+    document.getElementById("autoToggle");
 
   if (autoGenerate) {
 
     toggle.classList.add("active");
 
     autoInterval = setInterval(() => {
+
       generateQuote();
+
     }, 8000);
 
   } else {
@@ -406,173 +677,50 @@ function toggleAutoGenerate() {
   }
 }
 
-// ==============================
-// Search
-// ==============================
-
-function toggleSearch() {
-
-  document
-    .getElementById("searchWrap")
-    .classList.toggle("collapsed");
-}
-
-function toggleMobileSearch() {
-
-  document
-    .getElementById("mobileSearch")
-    .classList.toggle("hidden");
-}
-
-function handleSearch(value) {
-
-  const results = quotes[currentLanguage].filter(q =>
-    q.text.toLowerCase().includes(value.toLowerCase())
-  );
-
-  displaySearchResults(results);
-}
-
-function displaySearchResults(results) {
-
-  searchResults.innerHTML = "";
-  mobileSearchResults.innerHTML = "";
-
-  if (results.length === 0) {
-    return;
-  }
-
-  searchResults.classList.remove("hidden");
-  mobileSearchResults.classList.remove("hidden");
-
-  results.forEach(q => {
-
-    const item = document.createElement("div");
-
-    item.className =
-      "p-3 rounded-xl cursor-pointer dark:hover:bg-white/10 hover:bg-black/5";
-
-    item.innerHTML = `
-      <p class="text-sm">${q.text}</p>
-      <span class="text-xs opacity-70">${q.author}</span>
-    `;
-
-    item.onclick = () => {
-      quoteText.innerText = q.text;
-      quoteAuthor.innerText = `— ${q.author}`;
-      quoteCategory.innerText = q.category;
-      closeSearchResults();
-    };
-
-    searchResults.appendChild(item.cloneNode(true));
-    mobileSearchResults.appendChild(item);
-  });
-}
-
-function closeSearchResults() {
-  searchResults.classList.add("hidden");
-  mobileSearchResults.classList.add("hidden");
-}
-
-// ==============================
-// Categories
-// ==============================
-
-function createCategories() {
-
-  const container =
-    document.getElementById("categoryFilters");
-
-  container.innerHTML = "";
-
-  const allCategories = [
-    "All",
-    ...new Set(
-      quotes[currentLanguage].map(q => q.category)
-    )
-  ];
-
-  allCategories.forEach(category => {
-
-    const btn = document.createElement("button");
-
-    btn.className =
-      "px-4 py-2 rounded-2xl text-sm glass";
-
-    btn.innerText = category;
-
-    btn.onclick = () => {
-      currentCategory = category;
-      generateQuote();
-    };
-
-    container.appendChild(btn);
-  });
-}
-
-// ==============================
-// Toast
-// ==============================
-
-function showToast(message) {
-
-  const container =
-    document.getElementById("toastContainer");
-
-  const toast = document.createElement("div");
-
-  toast.className =
-    "glass px-4 py-3 rounded-2xl mb-2 text-sm";
-
-  toast.innerText = message;
-
-  container.appendChild(toast);
-
-  setTimeout(() => {
-    toast.remove();
-  }, 3000);
-}
-
-// ==============================
-// Download Quote as Image
-// ==============================
+// ============================================
+// DOWNLOAD IMAGE
+// ============================================
 
 function downloadQuote() {
 
   const canvas =
     document.getElementById("dlCanvas");
 
-  const ctx = canvas.getContext("2d");
+  const ctx =
+    canvas.getContext("2d");
 
   canvas.width = 1080;
   canvas.height = 1080;
 
   ctx.fillStyle = "#111827";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(0, 0, 1080, 1080);
 
   ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 50px serif";
+
+  ctx.font = "bold 52px serif";
 
   wrapText(
     ctx,
     quoteText.innerText,
     100,
-    300,
-    880,
+    350,
+    850,
     70
   );
 
-  ctx.font = "30px sans-serif";
+  ctx.font = "32px sans-serif";
 
   ctx.fillText(
     quoteAuthor.innerText,
     100,
-    700
+    750
   );
 
-  const link = document.createElement("a");
+  const link =
+    document.createElement("a");
 
   link.download = "quoteverse.png";
+
   link.href = canvas.toDataURL();
 
   link.click();
@@ -581,7 +729,7 @@ function downloadQuote() {
 }
 
 function wrapText(
-  context,
+  ctx,
   text,
   x,
   y,
@@ -599,13 +747,16 @@ function wrapText(
       line + words[n] + " ";
 
     const metrics =
-      context.measureText(testLine);
+      ctx.measureText(testLine);
 
     const testWidth = metrics.width;
 
-    if (testWidth > maxWidth && n > 0) {
+    if (
+      testWidth > maxWidth &&
+      n > 0
+    ) {
 
-      context.fillText(line, x, y);
+      ctx.fillText(line, x, y);
 
       line = words[n] + " ";
 
@@ -617,19 +768,45 @@ function wrapText(
     }
   }
 
-  context.fillText(line, x, y);
+  ctx.fillText(line, x, y);
 }
 
-// ==============================
-// Background Particles
-// ==============================
+// ============================================
+// TOAST
+// ============================================
+
+function showToast(message) {
+
+  const container =
+    document.getElementById("toastContainer");
+
+  const toast =
+    document.createElement("div");
+
+  toast.className =
+    "glass px-4 py-3 rounded-2xl text-sm mb-2";
+
+  toast.innerText = message;
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+
+    toast.remove();
+
+  }, 3000);
+}
+
+// ============================================
+// PARTICLES
+// ============================================
 
 function createParticles() {
 
-  const particles =
+  const container =
     document.getElementById("particles");
 
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 25; i++) {
 
     const particle =
       document.createElement("div");
@@ -645,21 +822,35 @@ function createParticles() {
     particle.style.animationDuration =
       5 + Math.random() * 10 + "s";
 
-    particles.appendChild(particle);
+    container.appendChild(particle);
   }
 }
 
-// ==============================
-// Close dropdowns outside click
-// ==============================
+// ============================================
+// OUTSIDE CLICK
+// ============================================
 
-document.addEventListener("click", (e) => {
+document.addEventListener("click", e => {
 
-  if (!document.getElementById("shareWrap").contains(e.target)) {
-    document.getElementById("shareDropdown").classList.remove("show");
+  const langDropdown =
+    document.getElementById("langDropdown");
+
+  if (
+    !langDropdown.contains(e.target)
+  ) {
+
+    closeLangMenu();
   }
 
-  if (!document.getElementById("langDropdown").contains(e.target)) {
-    closeLangMenu();
+  const shareWrap =
+    document.getElementById("shareWrap");
+
+  if (
+    !shareWrap.contains(e.target)
+  ) {
+
+    document
+      .getElementById("shareDropdown")
+      .classList.remove("show");
   }
 });
