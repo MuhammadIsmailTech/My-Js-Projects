@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wonderful Recipe Finder</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Animated Background Blobs -->
+    <div class="bg-decoration" aria-hidden="true">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Sticky Header -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="#" class="logo" id="logoBtn">
+                <i class="fa-solid fa-bowl-food"></i>
+                <span>RecipeFinder</span>
+            </a>
+            <nav class="nav" role="tablist">
+                <button class="nav-btn active" data-view="search" id="navSearch" role="tab" aria-selected="true">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span>Search</span>
+                </button>
+                <button class="nav-btn" data-view="favorites" id="navFavorites" role="tab" aria-selected="false">
+                    <i class="fa-solid fa-heart"></i>
+                    <span>Favorites</span>
+                    <span class="badge" id="favBadge" style="display:none;">0</span>
+                </button>
+            </nav>
+            <button class="surprise-btn" id="surpriseBtn" title="Surprise me with a random recipe">
+                <i class="fa-solid fa-shuffle"></i>
+                <span>Surprise Me</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="main">
+
+        <!-- Hero / Search Section -->
+        <section class="hero" id="heroSection">
+            <div class="hero-content">
+                <h1 class="hero-title">Discover Delicious Recipes</h1>
+                <p class="hero-subtitle">Find the perfect meal based on what's already in your kitchen</p>
+
+                <div class="search-wrapper">
+                    <!-- Search Type Toggle -->
+                    <div class="search-type-toggle" role="radiogroup" aria-label="Search type">
+                        <button class="toggle-btn active" data-type="ingredient" role="radio" aria-checked="true">
+                            <i class="fa-solid fa-carrot"></i> By Ingredient
+                        </button>
+                        <button class="toggle-btn" data-type="name" role="radio" aria-checked="false">
+                            <i class="fa-solid fa-utensils"></i> By Name
+                        </button>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="searchInput"
+                               placeholder="Search by ingredient (e.g., chicken, rice, tomato)..."
+                               autocomplete="off"
+                               aria-label="Search recipes">
+                        <button class="clear-btn" id="clearBtn" aria-label="Clear search">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                        <button class="search-btn" id="searchBtn">
+                            <span>Find Recipes</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Quick Pick Tags -->
+                    <div class="quick-tags">
+                        <span class="quick-label">Quick picks:</span>
+                        <div class="tags-scroll">
+                            <button class="tag-btn" data-query="chicken">Chicken</button>
+                            <button class="tag-btn" data-query="beef">Beef</button>
+                            <button class="tag-btn" data-query="pasta">Pasta</button>
+                            <button class="tag-btn" data-query="salmon">Salmon</button>
+                            <button class="tag-btn" data-query="rice">Rice</button>
+                            <button class="tag-btn" data-query="potato">Potato</button>
+                            <button class="tag-btn" data-query="cheese">Cheese</button>
+                            <button class="tag-btn" data-query="egg">Egg</button>
+                            <button class="tag-btn" data-query="shrimp">Shrimp</button>
+                            <button class="tag-btn" data-query="mushroom">Mushroom</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Categories Section -->
+        <section class="categories-section" id="categoriesSection">
+            <h2 class="section-title">
+                <i class="fa-solid fa-grip"></i>
+                Browse Categories
+            </h2>
+            <div class="categories-scroll-wrapper">
+                <div class="categories-scroll" id="categoriesContainer">
+                    <!-- Category pills rendered by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-section" id="resultsSection">
+            <div class="results-header">
+                <h2 class="section-title" id="resultsTitle">
+                    <i class="fa-solid fa-fire"></i>
+                    Featured Recipes
+                </h2>
+                <span class="results-count" id="resultsCount"></span>
+            </div>
+
+            <!-- Recipe Grid -->
+            <div class="recipe-grid" id="recipeGrid"></div>
+
+            <!-- Loading Skeletons -->
+            <div class="loading-state" id="loadingState" style="display:none;">
+                <div class="skeleton-grid">
+                    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
+                    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
+                    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
+                    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
+                    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
+                    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" style="display:none;">
+                <div class="empty-icon"><i class="fa-solid fa-face-sad-tear"></i></div>
+                <h3 id="emptyTitle">No Recipes Found</h3>
+                <p id="emptyMessage">Try searching with a different ingredient or browse our categories above.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Recipe Detail Modal -->
+    <div class="modal" id="recipeModal" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="modal-overlay" id="modalOverlay"></div>
+        <div class="modal-content" id="modalContent">
+            <button class="modal-close" id="modalClose" aria-label="Close modal">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal-body" id="modalBody">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Powered by <a href="https://www.themealdb.com/" target="_blank" rel="noopener">TheMealDB</a> &mdash; Find your next favorite meal</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
