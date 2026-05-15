@@ -46,7 +46,7 @@
   },
   {
     "name": "Random-Quotes-Generator",
-    "desc": "A Quote Generator that shows a new inspirational quote each time you click a button.",
+    "desc": "A Quote Generator that shows a new inspirational quote each time you click a button. It has a simple and elegant design, making it easy to use and share your favorite quotes with friends.",
     "meta": "Random-Quotes-Generator"
   },
   {
@@ -61,7 +61,7 @@
   },
   {
     "name": "Bulb",
-    "desc": "A simple Bulb which Turn OFF and ON on click on thread.",
+    "desc": "A simple project that demonstrates the concept of a light bulb that can be turned on and off. It uses JavaScript to toggle the state of the bulb and change its appearance accordingly.",
     "meta": "Bulb"
   },
   {
@@ -71,7 +71,7 @@
   },
   {
     "name": "BMI-Calculator",
-    "desc": "A simple BMI Calculator that calculates Body Mass Index based on height and weight inputs.",
+    "desc": "A simple BMI (Body Mass Index) Calculator that allows users to input their weight and height to calculate their BMI. The calculator provides feedback on whether the user is underweight, normal weight, overweight, or obese based on the calculated BMI value.",
     "meta": "BMI-Calculator"
   }
 
