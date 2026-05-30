@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="obsidian">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gemini AI Chat</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+</head>
+<body>
+
+<!-- Sidebar Overlay (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <svg class="brand-icon" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="var(--accent)"/>
+    </svg>
+    <div>
+      <div class="brand-name">Gemini Chat</div>
+      <div class="brand-tag">Powered by Google AI</div>
+    </div>
+  </div>
+
+  <button class="new-chat-btn" id="newChatBtn">
+    <i class="fas fa-plus"></i> New Chat
+  </button>
+
+  <div class="sidebar-label">Conversations</div>
+  <div class="chat-list" id="chatList"></div>
+
+  <div class="sidebar-label">Theme</div>
+  <div class="theme-grid" id="themeGrid">
+    <div class="theme-dot active" data-t="obsidian" title="Obsidian"></div>
+    <div class="theme-dot" data-t="ember" title="Ember"></div>
+    <div class="theme-dot" data-t="moss" title="Moss"></div>
+    <div class="theme-dot" data-t="blush" title="Blush"></div>
+    <div class="theme-dot" data-t="aurum" title="Aurum"></div>
+  </div>
+
+  <div class="api-key-wrap">
+    <div class="api-key-label"><i class="fas fa-key"></i> API Key</div>
+    <div class="api-key-input-wrap">
+      <input type="password" class="api-key-input" id="apiKeyInput" placeholder="Enter Gemini API key..." autocomplete="off">
+      <button class="api-key-toggle" id="apiKeyToggle">Save</button>
+    </div>
+    <div class="api-status" id="apiStatus">
+      <i class="fas fa-circle"></i> <span>No key configured</span>
+    </div>
+  </div>
+</aside>
+
+<!-- Main Chat Area -->
+<main class="chat-area">
+  <header class="chat-header">
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar">
+      <i class="fas fa-bars"></i>
+    </button>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="var(--accent)"/>
+    </svg>
+    <span class="header-title">Gemini 2.0 Flash</span>
+    <span class="header-sub" id="headerSub"></span>
+  </header>
+
+  <div class="messages-wrap" id="messagesWrap">
+    <div class="welcome-screen" id="welcomeScreen">
+      <div class="welcome-icon">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="var(--accent)" opacity=".9"/>
+          <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="none" stroke="var(--accent)" stroke-width=".5" opacity=".4"/>
+        </svg>
+      </div>
+      <h1 class="welcome-title">How can I help you today?</h1>
+      <p class="welcome-sub">Ask me anything — from writing code to explaining complex topics. I respond with formatted markdown and syntax-highlighted code.</p>
+      <div class="suggestions" id="suggestions">
+        <div class="suggestion-card" data-prompt="Explain quantum computing in simple terms, using analogies a 12-year-old would understand.">
+          <span class="sugg-icon"><i class="fas fa-atom"></i></span>
+          Explain quantum computing in simple terms
+        </div>
+        <div class="suggestion-card" data-prompt="Write a Python function that implements binary search with detailed comments explaining each step.">
+          <span class="sugg-icon"><i class="fas fa-code"></i></span>
+          Write a Python binary search function
+        </div>
+        <div class="suggestion-card" data-prompt="What are the top 5 best practices for designing REST APIs? Give practical examples for each.">
+          <span class="sugg-icon"><i class="fas fa-server"></i></span>
+          Best practices for REST API design
+        </div>
+        <div class="suggestion-card" data-prompt="Help me write a creative short story about a robot who discovers music for the first time. Keep it under 300 words.">
+          <span class="sugg-icon"><i class="fas fa-feather-pointed"></i></span>
+          Write a short story about a robot
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Emoji Picker -->
+  <div class="emoji-picker" id="emojiPicker">
+    <div class="emoji-tabs" id="emojiTabs"></div>
+    <div class="emoji-grid" id="emojiGrid"></div>
+  </div>
+
+  <div class="input-area">
+    <div class="input-wrap">
+      <button class="emoji-btn" id="emojiBtn" aria-label="Open emoji picker">
+        <i class="far fa-face-smile"></i>
+      </button>
+      <textarea id="messageInput" rows="1" placeholder="Type your message..." aria-label="Message input"></textarea>
+      <button class="send-btn disabled" id="sendBtn" aria-label="Send message">
+        <i class="fas fa-arrow-up"></i>
+      </button>
+    </div>
+    <div class="input-hint">Press Enter to send, Shift+Enter for new line</div>
+  </div>
+</main>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+</body>
+</html>
