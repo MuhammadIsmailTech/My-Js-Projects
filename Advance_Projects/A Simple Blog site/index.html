@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inkwell — A Quiet Blog</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    :root {
+      --bg: #0d0c0b;
+      --bg-elevated: #151412;
+      --card: #1a1917;
+      --card-hover: #201f1c;
+      --fg: #e6e0d4;
+      --fg-secondary: #c4bfb3;
+      --muted: #7a7468;
+      --accent: #c47d4e;
+      --accent-hover: #d99a6e;
+      --accent-dim: rgba(196,125,78,0.12);
+      --border: #2a2824;
+      --border-light: #363330;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Source Sans 3', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* Subtle noise overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10000;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+    }
+
+    .font-display { font-family: 'Playfair Display', serif; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+    /* Reading progress bar */
+    .reading-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+      z-index: 10001;
+      transition: width 0.1s linear;
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .animate-fade-up {
+      animation: fadeUp 0.6s ease-out forwards;
+      opacity: 0;
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
+      opacity: 0;
+    }
+    .animate-slide-down {
+      animation: slideDown 0.4s ease-out forwards;
+      opacity: 0;
+    }
+    .animate-scale-in {
+      animation: scaleIn 0.5s ease-out forwards;
+      opacity: 0;
+    }
+
+    .stagger-1 { animation-delay: 0.05s; }
+    .stagger-2 { animation-delay: 0.1s; }
+    .stagger-3 { animation-delay: 0.15s; }
+    .stagger-4 { animation-delay: 0.2s; }
+    .stagger-5 { animation-delay: 0.25s; }
+    .stagger-6 { animation-delay: 0.3s; }
+    .stagger-7 { animation-delay: 0.35s; }
+    .stagger-8 { animation-delay: 0.4s; }
+
+    /* Card hover effect */
+    .post-card {
+      transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+      border: 1px solid var(--border);
+    }
+    .post-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+      border-color: var(--border-light);
+    }
+    .post-card .card-image {
+      transition: transform 0.5s ease;
+    }
+    .post-card:hover .card-image {
+      transform: scale(1.06);
+    }
+
+    /* Link underline animation */
+    .link-anim {
+      position: relative;
+      text-decoration: none;
+    }
+    .link-anim::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--accent);
+      transition: width 0.3s ease;
+    }
+    .link-anim:hover::after {
+      width: 100%;
+    }
+
+    /* Category pill */
+    .cat-pill {
+      transition: all 0.25s ease;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .cat-pill:hover {
+      border-color: var(--accent);
+      color: var(--fg-secondary);
+    }
+    .cat-pill.active {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Header transition */
+    .site-header {
+      transition: background 0.3s ease, border-color 0.3s ease, backdrop-filter 0.3s ease;
+      border-bottom: 1px solid transparent;
+    }
+    .site-header.scrolled {
+      background: rgba(13,12,11,0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom-color: var(--border);
+    }
+
+    /* Featured hero overlay */
+    .hero-overlay {
+      background: linear-gradient(to top, var(--bg) 0%, rgba(13,12,11,0.7) 40%, rgba(13,12,11,0.3) 100%);
+    }
+
+    /* Post page hero */
+    .post-hero-overlay {
+      background: linear-gradient(to top, var(--bg) 0%, rgba(13,12,11,0.6) 50%, rgba(13,12,11,0.2) 100%);
+    }
+
+    /* Prose styling for article content */
+    .prose-custom p {
+      margin-bottom: 1.5em;
+      color: var(--fg-secondary);
+      font-size: 1.125rem;
+      line-height: 1.85;
+    }
+    .prose-custom p:first-of-type::first-letter {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5em;
+      float: left;
+      line-height: 0.8;
+      margin-right: 0.1em;
+      margin-top: 0.08em;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .prose-custom blockquote {
+      border-left: 3px solid var(--accent);
+      padding: 1em 0 1em 1.5em;
+      margin: 2em 0;
+      font-style: italic;
+      color: var(--fg-secondary);
+    }
+    .prose-custom h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin: 2.5em 0 0.8em;
+      color: var(--fg);
+    }
+
+    /* Glow blob background */
+    .glow-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+      opacity: 0.07;
+    }
+
+    /* Mobile menu */
+    .mobile-menu {
+      transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+    }
+    .mobile-menu.closed {
+      opacity: 0;
+      transform: translateY(-8px);
+      visibility: hidden;
+    }
+    .mobile-menu.open {
+      opacity: 1;
+      transform: translateY(0);
+      visibility: visible;
+    }
+
+    /* Search input */
+    .search-input {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--fg);
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+    .search-input::placeholder {
+      color: var(--muted);
+    }
+
+    /* Share button */
+    .share-btn {
+      transition: all 0.2s ease;
+      color: var(--muted);
+    }
+    .share-btn:hover {
+      color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    /* Back link */
+    .back-link {
+      transition: color 0.2s ease, gap 0.2s ease;
+      gap: 0.4em;
+    }
+    .back-link:hover {
+      color: var(--accent);
+      gap: 0.6em;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-router-dom@6.20.0/dist/umd/react-router-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useMemo, useCallback } = React;
+    const { HashRouter, Routes, Route, Link, useParams, useNavigate, useLocation } = ReactRouterDOM;
+
+    /* ==================== DATA ==================== */
+    const posts = [
+      {
+        id: 1,
+        title: "The Quiet Revolution of Slow Design",
+        excerpt: "In a world obsessed with speed, a growing movement of designers is choosing to slow down — and creating more meaningful work as a result.",
+        content: `<p>There is a particular kind of exhaustion that comes from living inside interfaces designed to capture every fraction of your attention. The infinite scroll, the autoplay, the notification that demands an immediate response — each one a small theft of cognitive space. Against this backdrop, a counter-movement has been gathering momentum, not with manifestos or press releases, but with the simple act of making things that don't shout.</p>
+        <blockquote>Good design is as little design as possible. Less, but better — because it concentrates on the essential aspects, and the products are not burdened with non-essentials. Back to purity, back to simplicity.</blockquote>
+        <p>Slow Design, as its practitioners call it, borrows its ethos from the Slow Food movement that began in Italy during the 1980s. The core idea is deceptively simple: that the process of creation matters as much as the outcome. A chair designed over twelve months of iterative prototyping carries a different weight than one conceived and manufactured in a week. Not because the slower chair is objectively better — though it often is — but because the relationship between maker, material, and user has been given room to breathe.</p>
+        <h2>Beyond Efficiency</h2>
+        <p>The digital realm has been slower to embrace this philosophy, but the signs are there. Websites that load deliberately, with considered typography and generous whitespace. Applications that refuse to gamify their interfaces. Tools that treat your time as a resource to be respected rather than a commodity to be extracted. These aren't regressions — they are deliberate choices to prioritize depth over breadth, understanding over engagement metrics.</p>
+        <p>What makes Slow Design radical is not its aesthetic — which can range from rustic to hyper-minimal — but its underlying assumption that people deserve environments that don't constantly demand their reaction. In an age of sensory overload, that might be the most subversive design principle of all.</p>`,
+        author: "Elena Vasquez",
+        authorAvatar: "https://picsum.photos/seed/elena42/80/80.jpg",
+        date: "2024-12-15",
+        category: "Design",
+        readTime: 6,
+        image: "https://picsum.photos/seed/slowdesign9/1200/600.jpg",
+        featured: true
+      },
+      {
+        id: 2,
+        title: "Code and Canvas: When Algorithms Meet Art",
+        excerpt: "Generative art is blurring the line between programmer and painter, creating works that exist at the intersection of logic and beauty.",
+        content: `<p>The first time Maya Chen ran her generative algorithm, she stared at the screen for forty minutes without moving. What emerged was not what she had programmed — not exactly — but something that contained the ghost of her instructions, transformed through thousands of iterative mutations into something she would never have conceived on her own. "It was like having a conversation with a very strange, very beautiful mind," she recalls.</p>
+        <p>Generative art sits at an uneasy intersection of two traditions that have long been considered opposites: the precise, deterministic world of code and the open-ended, subjective world of visual art. But this opposition, it turns out, may have been more cultural than technical. Algorithms have always been capable of producing beauty — fractals, cellular automata, the mathematical curves of parametric design. What's changed is the sophistication of the tools and, perhaps more importantly, the willingness of the art world to pay attention.</p>
+        <h2>The Artist as Gardener</h2>
+        <p>The best generative artists describe their practice not as engineering but as gardening. You set the conditions — the rules, the constraints, the color palettes, the probability distributions — and then you step back and let the system grow. The artist's role shifts from creator to curator, selecting and refining from an infinite field of possible outputs. This requires a different kind of aesthetic sensibility: not the ability to compose a single image, but the ability to design a space of images and recognize which ones sing.</p>
+        <p>What makes this practice genuinely new is the way it destabilizes authorship. When a piece exists as a set of instructions that produce different outputs each time they run, where exactly is the artwork? In the code? In a specific output? In the system as a whole? These questions don't have comfortable answers, and that discomfort is part of the point.</p>`,
+        author: "James Okafor",
+        authorAvatar: "https://picsum.photos/seed/james77/80/80.jpg",
+        date: "2024-12-08",
+        category: "Technology",
+        readTime: 5,
+        image: "https://picsum.photos/seed/genart22/1200/600.jpg",
+        featured: false
+      },
+      {
+        id: 3,
+        title: "Forgotten Sounds: The Vinyl Renaissance",
+        excerpt: "Record sales are at their highest in decades. But the revival isn't about nostalgia — it's about a fundamentally different relationship with music.",
+        content: `<p>In the back of a narrow shop in East London, rows of vinyl records stand like ancient manuscripts in a library that refuses to digitize. The owner, a retired sound engineer named David, watches a young woman carefully slide a record from its sleeve, hold it up to the light, and examine the grooves with the reverence usually reserved for old photographs. "She's checking for scratches," he whispers. "They all do that now. Took me by surprise the first time."</p>
+        <p>The vinyl revival has been written about extensively, usually through the lens of nostalgia — millennials and Gen Z reaching back for an analog past they never actually experienced. But the reality is more interesting and more complicated. The people buying records today aren't trying to recreate their parents' living rooms. They're responding to something specific about the medium: its physicality, its rituals, its refusal to be background.</p>
+        <h2>The Ceremony of Listening</h2>
+        <p>Playing a record is a deliberate act in a way that streaming is not. You choose an album, not an algorithm's suggestion. You remove it from its sleeve, place it on the platter, set the needle. You commit to a sequence of songs in a specific order, because skipping tracks on vinyl is awkward and disruptive. This friction, far from being a defect, is the medium's greatest strength. It creates the conditions for attention.</p>
+        <p>There's also the matter of sound. Audiophiles have argued for decades about whether vinyl actually sounds better than digital — the answer, technically, is that digital is more accurate. But accuracy and pleasure are not the same thing. The warmth people describe in vinyl — the slight compression, the gentle roll-off of high frequencies, the surface noise that becomes a kind of ambient texture — these aren't flaws to be corrected. They're qualities that make the listening experience feel human, imperfect, alive.</p>`,
+        author: "Sofia Andersson",
+        authorAvatar: "https://picsum.photos/seed/sofia33/80/80.jpg",
+        date: "2024-11-29",
+        category: "Culture",
+        readTime: 7,
+        image: "https://picsum.photos/seed/vinyl55/1200/600.jpg",
+        featured: false
+      },
+      {
+        id: 4,
+        title: "Architecture of Solitude",
+        excerpt: "From Japanese capsule hotels to Scandinavian forest cabins, a new wave of architecture is designed not for gathering, but for being alone.",
+        content: `<p>Takeda's Capsule Hotel in Osaka opened in 1979, and for decades it was viewed as a pragmatic response to urban density — a place for overworked salarymen to sleep cheaply near the office. But something unexpected has happened in the years since. The capsule, once a symbol of dehumanizing efficiency, has become a template for a new kind of architectural thinking: buildings designed to make solitude feel intentional rather than accidental.</p>
+        <p>The shift reflects a broader cultural reassessment of aloneness. For most of the twentieth century, being alone was treated as a problem to be solved — through community centers, through suburban design that enforced neighborly proximity, through an entire industry of entertainment designed to fill silence. The assumption was that people, left to their own devices, would become lonely, depressed, disconnected.</p>
+        <h2>Designed for One</h2>
+        <p>The new solitude architecture takes the opposite approach. It starts from the premise that being alone is not a failure of social connection but a distinct and valuable mode of experience — one that deserves its own designed environments. These spaces tend to share certain qualities: they're small but not cramped, minimal but not sterile, isolated but not inaccessible. They frame a view — of a forest, of a sky, of a single window onto a street — rather than trying to contain a panorama.</p>
+        <p>What these buildings offer is not isolation but intentionality. In a world where social connection is constant and ambient — the always-on group chat, the infinite social feed — choosing to be alone becomes a radical act. Architecture that supports that choice isn't withdrawing from the world. It's creating the conditions for a different kind of engagement with it.</p>`,
+        author: "Kenji Murakami",
+        authorAvatar: "https://picsum.photos/seed/kenji88/80/80.jpg",
+        date: "2024-11-20",
+        category: "Design",
+        readTime: 6,
+        image: "https://picsum.photos/seed/solitude44/1200/600.jpg",
+        featured: false
+      },
+      {
+        id: 5,
+        title: "The Last Bookshops",
+        excerpt: "Independent bookstores were supposed to be dead by now. Instead, they're experiencing a quiet but unmistakable revival.",
+        content: `<p>The statistics don't make sense on the surface. Between 2005 and 2010, the United States lost roughly a thousand independent bookstores. Amazon was eating the world. E-readers were supposed to make physical books obsolete. Every trend line pointed in one direction. And then, around 2012, the lines started to bend. By 2020, there were more independent bookstores in America than there had been in a decade. Nobody predicted this.</p>
+        <p>The explanations vary. Some credit the "shop local" movement. Others point to the failure of e-readers to deliver on their promise — people turned out to want physical objects after all, or at least to want them alongside their digital libraries. But the most interesting explanation has less to do with books and more to do with what a bookstore actually is.</p>
+        <h2>Third Places, Reimagined</h2>
+        <p>A bookstore is, among other things, a third place — a space that is neither home nor work, where the primary activity is being present without a specific agenda. The decline of third places has been one of the defining social trends of the past two decades: malls closed, cafes became remote work hubs, libraries faced budget cuts. Into this vacuum, bookstores stepped, often without realizing it.</p>
+        <p>The successful modern indie bookstore is not primarily a retail space. It's a community space that happens to sell books. It hosts events, curates selections with distinct personality, employs staff who read passionately and recommend fearlessly. It offers something that no algorithm can replicate: the serendipity of wandering shelves and discovering something you didn't know you were looking for.</p>`,
+        author: "Clara Whitfield",
+        authorAvatar: "https://picsum.photos/seed/clara61/80/80.jpg",
+        date: "2024-11-12",
+        category: "Culture",
+        readTime: 5,
+        image: "https://picsum.photos/seed/bookshop99/1200/600.jpg",
+        featured: false
+      },
+      {
+        id: 6,
+        title: "Digital Minimalism in Practice",
+        excerpt: "Cal Newport's philosophy has been widely discussed. Less examined is what happens when you actually try to live it — day by day, notification by notification.",
+        content: `<p>On the first Monday of my digital minimalism experiment, I woke to silence. No phone buzzing with overnight messages, no algorithmically curated news digest, no social media notifications competing for my first conscious thoughts. The absence was so striking that it took me several minutes to identify what felt different. My morning had been stolen back, and I hadn't realized it was missing.</p>
+        <p>The theory behind digital minimalism is straightforward: treat your digital tools with the same intentionality you'd bring to any other aspect of your life. Don't ban technology; audit it. Identify which tools provide genuine value, which are merely habitual, and which are actively harmful. Then redesign your digital environment around the first category and ruthlessly prune the other two.</p>
+        <h2>The Thirty-Day Reset</h2>
+        <p>Newport recommends a thirty-day period of complete abstinence from optional technologies — everything except essentials like email, navigation, and banking. The idea is not to suffer but to create enough distance to see clearly what you actually miss versus what you merely reach for out of habit. I tried it last autumn, and the first week was genuinely uncomfortable. My hands kept reaching for a phone that was, by design, in another room.</p>
+        <p>By week three, something shifted. I started reading physical books again — not out of principle but out of genuine desire. I had longer conversations. I noticed the weather. These sound like clichés, and they are, but clichés become clichés because they describe experiences that are widely shared. The hardest part wasn't the withdrawal. It was the realization of how much time I had been spending on things that left no trace.</p>`,
+        author: "Marcus Webb",
+        authorAvatar: "https://picsum.photos/seed/marcus14/80/80.jpg",
+        date: "2024-11-03",
+        category: "Technology",
+        readTime: 6,
+        image: "https://picsum.photos/seed/minimal7/1200/600.jpg",
+        featured: false
+      },
+      {
+        id: 7,
+        title: "Wabi-Sabi and the Beauty of Imperfection",
+        excerpt: "A centuries-old Japanese aesthetic philosophy offers a radical alternative to the polished perfection of modern design.",
+        content: `<p>In the tea rooms of sixteenth-century Japan, a new aesthetic was being forged — not in the studios of professional artists, but in the practice of a monk named Sen no Rikyu who believed that the most profound beauty resided in things that were humble, irregular, and impermanent. His tea bowls were handmade, unevenly glazed, and deliberately simple. Next to the imported Chinese porcelain that the Japanese elite prized, they looked almost willfully plain. But Rikyu understood something that his contemporaries did not: that perfection is a dead end, and that true beauty requires the presence of time, wear, and the unpredictable.</p>
+        <p>Wabi-sabi is notoriously difficult to translate. "Wabi" originally meant the loneliness of living in nature, remote from society; "sabi" meant chill, lean, or withered. Together, they describe a beauty that is incomplete, impermanent, and imperfect — and that draws its power from those very qualities rather than despite them.</p>
+        <h2>Against the Polish</h2>
+        <p>In a design culture obsessed with pixel-perfect interfaces, seamless gradients, and frictionless experiences, wabi-sabi feels almost subversive. It asks us to consider: what if the scratch on the table is more interesting than the table itself? What if the slightly uneven line has more character than the geometrically perfect one? What if a design that shows its making — its process, its materials, its human origins — creates a deeper connection than one that hides all evidence of effort?</p>
+        <p>The practical application of wabi-sabi in modern design doesn't mean making things ugly or careless. It means allowing certain qualities to remain: the texture of raw materials, the evidence of craft, the subtle variations that come from handmade processes. It means designing objects and spaces that will age gracefully rather than fighting against time at every turn.</p>`,
+        author: "Yuki Tanaka",
+        authorAvatar: "https://picsum.photos/seed/yuki56/80/80.jpg",
+        date: "2024-10-25",
+        category: "Design",
+        readTime: 5,
+        image: "https://picsum.photos/seed/wabisabi8/1200/600.jpg",
+        featured: false
+      },
+      {
+        id: 8,
+        title: "The Lost Art of Letter Writing",
+        excerpt: "In an era of instant communication, the handwritten letter persists as an act of radical slowness — and surprising intimacy.",
+        content: `<p>My grandmother's letters are stored in a shoebox in my closet. There are perhaps forty of them, written between 1987 and 2003, on thin airmail paper in her careful, slightly trembling hand. Each one begins the same way: "My dearest," followed by a paragraph about the weather in her small coastal town, then news of neighbors, then a question about my life, then a closing that always includes the phrase "write when you can." I never wrote back as often as she hoped.</p>
+        <p>I think about those letters often now, in the age of WhatsApp and email and the endless scroll of text messages that accumulate like sediment in our digital lives. The difference between my grandmother's letters and the messages I exchange today is not just the medium — paper versus screen, handwriting versus typed text. The difference is in the relationship to time.</p>
+        <h2>The Weight of Waiting</h2>
+        <p>A letter takes time to write. Not the mechanical time of typing — which is nearly instantaneous — but the cognitive time of deciding what matters enough to include when you know the message won't arrive for days. Every word carries more weight when you can't simply send a follow-up to clarify. The letter forces a kind of editorial discipline that instant messaging makes unnecessary and therefore rare.</p>
+        <p>Then there is the waiting. The days between sending and receiving, during which the letter exists in a liminal space — neither sent nor arrived, neither past nor future. This waiting is not a bug in the system of letter writing. It is the system. It creates space for anticipation, for reflection, for the gradual accumulation of thoughts that will fill the next letter. In a world that has optimized away nearly all waiting, this particular quality of the letter — its slowness as a feature rather than a flaw — feels almost sacred.</p>`,
+        author: "Hannah Byrne",
+        authorAvatar: "https://picsum.photos/seed/hannah29/80/80.jpg",
+        date: "2024-10-17",
+        category: "Culture",
+        readTime: 5,
+        image: "https://picsum.photos/seed/letters15/1200/600.jpg",
+        featured: false
+      }
+    ];
+
+    const categories = ["All", ...new Set(posts.map(p => p.category))];
+
+    /* ==================== UTILITIES ==================== */
+    function formatDate(dateStr) {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+
+    function getRelatedPosts(currentId, category, limit = 3) {
+      return posts
+        .filter(p => p.id !== currentId && p.category === category)
+        .slice(0, limit);
+    }
+
+    /* ==================== SCROLL TO TOP ==================== */
+    function ScrollToTop() {
+      const { pathname } = useLocation();
+      useEffect(() => {
+        window.scrollTo(0, 0);
+      }, [pathname]);
+      return null;
+    }
+
+    /* ==================== READING PROGRESS ==================== */
+    function ReadingProgress() {
+      const [progress, setProgress] = useState(0);
+      const { pathname } = useLocation();
+      const isPost = pathname.startsWith('/post/');
+
+      useEffect(() => {
+        if (!isPost) { setProgress(0); return; }
+        const handleScroll = () => {
+          const scrollTop = window.scrollY;
+          const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+          if (docHeight > 0) setProgress(Math.min((scrollTop / docHeight) * 100, 100));
+        };
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+      }, [isPost]);
+
+      if (!isPost) return null;
+      return <div className="reading-progress" style={{ width: progress + '%' }} />;
+    }
+
+    /* ==================== HEADER ==================== */
+    function Header() {
+      const [scrolled, setScrolled] = useState(false);
+      const [mobileOpen, setMobileOpen] = useState(false);
+      const location = useLocation();
+
+      useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 30);
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+      }, []);
+
+      useEffect(() => { setMobileOpen(false); }, [location]);
+
+      return (
+        <header className={`site-header fixed top-0 left-0 right-0 z-[1000] ${scrolled ? 'scrolled' : ''}`}>
+          <div className="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+            <Link to="/" className="font-display text-xl sm:text-2xl font-bold tracking-tight" style={{ color: 'var(--fg)' }}>
+              Inkwell
+            </Link>
+
+            {/* Desktop nav */}
+            <nav className="hidden sm:flex items-center gap-8">
+              <Link to="/" className={`link-anim text-sm font-medium tracking-wide uppercase ${location.pathname === '/' ? '' : ''}`} style={{ color: location.pathname === '/' ? 'var(--accent)' : 'var(--muted)' }}>
+                Home
+              </Link>
+              <Link to="/about" className="link-anim text-sm font-medium tracking-wide uppercase" style={{ color: location.pathname === '/about' ? 'var(--accent)' : 'var(--muted)' }}>
+                About
+              </Link>
+            </nav>
+
+            {/* Mobile hamburger */}
+            <button
+              className="sm:hidden flex flex-col gap-1.5 p-2"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label="Toggle menu"
+              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              <span className="block w-5 h-0.5 transition-all duration-300" style={{ background: 'var(--fg)', transform: mobileOpen ? 'rotate(45deg) translate(2px, 2px)' : 'none' }} />
+              <span className="block w-5 h-0.5 transition-all duration-300" style={{ background: 'var(--fg)', opacity: mobileOpen ? 0 : 1 }} />
+              <span className="block w-5 h-0.5 transition-all duration-300" style={{ background: 'var(--fg)', transform: mobileOpen ? 'rotate(-45deg) translate(2px, -2px)' : 'none' }} />
+            </button>
+          </div>
+
+          {/* Mobile menu */}
+          <div className={`mobile-menu sm:hidden absolute top-full left-0 right-0 ${mobileOpen ? 'open' : 'closed'}`} style={{ background: 'rgba(13,12,11,0.95)', backdropFilter: 'blur(16px)', borderBottom: '1px solid var(--border)' }}>
+            <nav className="flex flex-col p-6 gap-4">
+              <Link to="/" className="text-lg font-medium" style={{ color: 'var(--fg)' }}>Home</Link>
+              <Link to="/about" className="text-lg font-medium" style={{ color: 'var(--fg)' }}>About</Link>
+            </nav>
+          </div>
+        </header>
+      );
+    }
+
+    /* ==================== FOOTER ==================== */
+    function Footer() {
+      return (
+        <footer style={{ borderTop: '1px solid var(--border)', background: 'var(--bg-elevated)' }}>
+          <div className="max-w-6xl mx-auto px-5 sm:px-8 py-12 sm:py-16">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-10">
+              <div>
+                <h3 className="font-display text-xl font-bold mb-3" style={{ color: 'var(--fg)' }}>Inkwell</h3>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
+                  A quiet corner of the internet for long-form thinking about design, technology, and culture.
+                </p>
+              </div>
+              <div>
+                <h4 className="text-xs font-semibold tracking-widest uppercase mb-4" style={{ color: 'var(--muted)' }}>Navigate</h4>
+                <div className="flex flex-col gap-2">
+                  <Link to="/" className="text-sm link-anim" style={{ color: 'var(--fg-secondary)' }}>All Posts</Link>
+                  <Link to="/about" className="text-sm link-anim" style={{ color: 'var(--fg-secondary)' }}>About</Link>
+                </div>
+              </div>
+              <div>
+                <h4 className="text-xs font-semibold tracking-widest uppercase mb-4" style={{ color: 'var(--muted)' }}>Categories</h4>
+                <div className="flex flex-col gap-2">
+                  {categories.filter(c => c !== 'All').map(cat => (
+                    <Link to="/" key={cat} className="text-sm link-anim" style={{ color: 'var(--fg-secondary)' }}>{cat}</Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid var(--border)' }}>
+              <p className="text-xs" style={{ color: 'var(--muted)' }}>2024 Inkwell. Crafted with care.</p>
+              <div className="flex gap-5">
+                <a href="#" className="share-btn text-base" aria-label="Twitter"><i className="fa-brands fa-x-twitter"></i></a>
+                <a href="#" className="share-btn text-base" aria-label="GitHub"><i className="fa-brands fa-github"></i></a>
+                <a href="#" className="share-btn text-base" aria-label="RSS"><i className="fa-solid fa-rss"></i></a>
+              </div>
+            </div>
+          </div>
+        </footer>
+      );
+    }
+
+    /* ==================== LAYOUT ==================== */
+    function Layout({ children }) {
+      return (
+        <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg)' }}>
+          <ReadingProgress />
+          <Header />
+          <main className="flex-1 pt-16">{children}</main>
+          <Footer />
+        </div>
+      );
+    }
+
+    /* ==================== POST CARD ==================== */
+    function PostCard({ post, index }) {
+      return (
+        <article className={`post-card rounded-xl overflow-hidden animate-fade-up stagger-${Math.min(index + 1, 8)}`} style={{ background: 'var(--card)' }}>
+          <Link to={`/post/${post.id}`} className="block">
+            <div className="overflow-hidden aspect-[16/9]">
+              <img
+                src={post.image}
+                alt={post.title}
+                className="card-image w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
+          </Link>
+          <div className="p-5 sm:p-6">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="text-xs font-semibold tracking-wider uppercase" style={{ color: 'var(--accent)' }}>{post.category}</span>
+              <span className="text-xs" style={{ color: 'var(--border-light)' }}>&#8226;</span>
+              <span className="text-xs" style={{ color: 'var(--muted)' }}>{post.readTime} min read</span>
+            </div>
+            <Link to={`/post/${post.id}`}>
+              <h3 className="font-display text-lg sm:text-xl font-bold leading-snug mb-2 link-anim" style={{ color: 'var(--fg)' }}>
+                {post.title}
+              </h3>
+            </Link>
+            <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--muted)' }}>
+              {post.excerpt}
+            </p>
+            <div className="flex items-center gap-3">
+              <img src={post.authorAvatar} alt={post.author} className="w-7 h-7 rounded-full object-cover" loading="lazy" />
+              <span className="text-xs font-medium" style={{ color: 'var(--fg-secondary)' }}>{post.author}</span>
+              <span className="text-xs ml-auto" style={{ color: 'var(--muted)' }}>{formatDate(post.date)}</span>
+            </div>
+          </div>
+        </article>
+      );
+    }
+
+    /* ==================== HOME PAGE ==================== */
+    function HomePage() {
+      const [activeCategory, setActiveCategory] = useState('All');
+      const [searchQuery, setSearchQuery] = useState('');
+      const [searchFocused, setSearchFocused] = useState(false);
+      const featuredPost = posts.find(p => p.featured);
+
+      const filteredPosts = useMemo(() => {
+        return posts.filter(p => {
+          const matchCategory = activeCategory === 'All' || p.category === activeCategory;
+          const matchSearch = searchQuery === '' ||
+            p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            p.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            p.author.toLowerCase().includes(searchQuery.toLowerCase());
+          return matchCategory && matchSearch;
+        }).filter(p => !p.featured);
+      }, [activeCategory, searchQuery]);
+
+      return (
+        <div>
+          {/* Ambient glow */}
+          <div className="glow-blob" style={{ width: 500, height: 500, top: -100, right: -150, background: 'var(--accent)' }} />
+          <div className="glow-blob" style={{ width: 400, height: 400, top: 300, left: -200, background: '#4e7dc4' }} />
+
+          {/* Featured Hero */}
+          {featuredPost && (
+            <section className="relative animate-fade-up" style={{ minHeight: '70vh' }}>
+              <div className="absolute inset-0 overflow-hidden">
+                <img
+                  src={featuredPost.image}
+                  alt={featuredPost.title}
+                  className="w-full h-full object-cover"
+                  style={{ opacity: 0.45 }}
+                />
+                <div className="hero-overlay absolute inset-0" />
+              </div>
+              <div className="relative max-w-6xl mx-auto px-5 sm:px-8 flex flex-col justify-end" style={{ minHeight: '70vh', paddingBottom: '4rem' }}>
+                <div className="max-w-2xl">
+                  <div className="flex items-center gap-3 mb-4 animate-fade-up stagger-2">
+                    <span className="px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase" style={{ background: 'var(--accent)', color: '#0d0c0b' }}>
+                      Featured
+                    </span>
+                    <span className="text-xs font-semibold tracking-wider uppercase" style={{ color: 'var(--accent)' }}>{featuredPost.category}</span>
+                  </div>
+                  <Link to={`/post/${featuredPost.id}`}>
+                    <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl font-900 leading-tight mb-4 animate-fade-up stagger-3" style={{ color: 'var(--fg)' }}>
+                      {featuredPost.title}
+                    </h1>
+                  </Link>
+                  <p className="text-base sm:text-lg leading-relaxed mb-6 animate-fade-up stagger-4" style={{ color: 'var(--fg-secondary)', maxWidth: '540px' }}>
+                    {featuredPost.excerpt}
+                  </p>
+                  <div className="flex items-center gap-4 animate-fade-up stagger-5">
+                    <img src={featuredPost.authorAvatar} alt={featuredPost.author} className="w-10 h-10 rounded-full object-cover" />
+                    <div>
+                      <p className="text-sm font-medium" style={{ color: 'var(--fg)' }}>{featuredPost.author}</p>
+                      <p className="text-xs" style={{ color: 'var(--muted)' }}>{formatDate(featuredPost.date)} &middot; {featuredPost.readTime} min read</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Posts Section */}
+          <section className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
+            {/* Section header with search and filters */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10 animate-fade-up">
+              <div>
+                <h2 className="font-display text-2xl sm:text-3xl font-bold" style={{ color: 'var(--fg)' }}>Latest Articles</h2>
+                <p className="text-sm mt-1" style={{ color: 'var(--muted)' }}>
+                  {filteredPosts.length} {filteredPosts.length === 1 ? 'article' : 'articles'} {activeCategory !== 'All' ? `in ${activeCategory}` : ''} {searchQuery ? `matching "${searchQuery}"` : ''}
+                </p>
+              </div>
+              <div className="relative" style={{ minWidth: 220 }}>
+                <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: 'var(--muted)' }} />
+                <input
+                  type="text"
+                  className="search-input w-full pl-9 pr-4 py-2.5 rounded-lg text-sm"
+                  placeholder="Search articles..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  onFocus={() => setSearchFocused(true)}
+                  onBlur={() => setSearchFocused(false)}
+                  aria-label="Search articles"
+                />
+              </div>
+            </div>
+
+            {/* Category pills */}
+            <div className="flex flex-wrap gap-2 mb-10 animate-fade-up stagger-2">
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  className={`cat-pill px-4 py-2 rounded-full text-sm font-medium ${activeCategory === cat ? 'active' : ''}`}
+                  onClick={() => setActiveCategory(cat)}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {/* Post grid */}
+            {filteredPosts.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredPosts.map((post, i) => (
+                  <PostCard key={post.id} post={post} index={i} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 animate-fade-in">
+                <i className="fa-regular fa-face-meh text-4xl mb-4 block" style={{ color: 'var(--muted)' }} />
+                <p className="text-lg font-medium mb-1" style={{ color: 'var(--fg-secondary)' }}>No articles found</p>
+                <p className="text-sm" style={{ color: 'var(--muted)' }}>Try adjusting your search or filter criteria.</p>
+                <button
+                  className="mt-4 px-5 py-2 rounded-lg text-sm font-medium"
+                  style={{ background: 'var(--accent-dim)', color: 'var(--accent)', border: '1px solid var(--accent)', cursor: 'pointer' }}
+                  onClick={() => { setActiveCategory('All'); setSearchQuery(''); }}
+                >
+                  Clear filters
+                </button>
+              </div>
+            )}
+          </section>
+        </div>
+      );
+    }
+
+    /* ==================== POST PAGE ==================== */
+    function PostPage() {
+      const { id } = useParams();
+      const navigate = useNavigate();
+      const postId = parseInt(id, 10);
+      const post = posts.find(p => p.id === postId);
+      const [visible, setVisible] = useState(false);
+
+      useEffect(() => {
+        const timer = setTimeout(() => setVisible(true), 50);
+        return () => clearTimeout(timer);
+      }, [id]);
+
+      if (!post) {
+        return (
+          <div className="max-w-3xl mx-auto px-5 sm:px-8 py-32 text-center animate-fade-in">
+            <h1 className="font-display text-4xl font-bold mb-4" style={{ color: 'var(--fg)' }}>Post Not Found</h1>
+            <p className="mb-6" style={{ color: 'var(--muted)' }}>The article you're looking for doesn't exist.</p>
+            <Link to="/" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium" style={{ background: 'var(--accent)', color: '#0d0c0b' }}>
+              <i className="fa-solid fa-arrow-left text-xs" /> Back to Home
+            </Link>
+          </div>
+        );
+      }
+
+      const related = getRelatedPosts(post.id, post.category);
+
+      return (
+        <div style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.4s ease' }}>
+          {/* Ambient glow */}
+          <div className="glow-blob" style={{ width: 400, height: 400, top: 100, right: -100, background: 'var(--accent)' }} />
+
+          {/* Post Hero */}
+          <section className="relative" style={{ minHeight: '60vh' }}>
+            <div className="absolute inset-0 overflow-hidden">
+              <img
+                src={post.image}
+                alt={post.title}
+                className="w-full h-full object-cover"
+                style={{ opacity: 0.35 }}
+              />
+              <div className="post-hero-overlay absolute inset-0" />
+            </div>
+            <div className="relative max-w-3xl mx-auto px-5 sm:px-8 flex flex-col justify-end" style={{ minHeight: '60vh', paddingBottom: '3rem' }}>
+              <button
+                onClick={() => navigate('/')}
+                className="back-link inline-flex items-center text-sm font-medium mb-8 animate-fade-up"
+                style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer' }}
+              >
+                <i className="fa-solid fa-arrow-left text-xs" /> Back to articles
+              </button>
+              <div className="flex items-center gap-3 mb-4 animate-fade-up stagger-1">
+                <span className="text-xs font-semibold tracking-wider uppercase" style={{ color: 'var(--accent)' }}>{post.category}</span>
+                <span className="text-xs" style={{ color: 'var(--border-light)' }}>&#8226;</span>
+                <span className="text-xs" style={{ color: 'var(--muted)' }}>{post.readTime} min read</span>
+                <span className="text-xs" style={{ color: 'var(--border-light)' }}>&#8226;</span>
+                <span className="text-xs" style={{ color: 'var(--muted)' }}>{formatDate(post.date)}</span>
+              </div>
+              <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-900 leading-tight mb-6 animate-fade-up stagger-2" style={{ color: 'var(--fg)' }}>
+                {post.title}
+              </h1>
+              <div className="flex items-center gap-4 animate-fade-up stagger-3">
+                <img src={post.authorAvatar} alt={post.author} className="w-11 h-11 rounded-full object-cover" />
+                <div>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>{post.author}</p>
+                  <p className="text-xs" style={{ color: 'var(--muted)' }}>Contributing Writer</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Article Body */}
+          <article className="max-w-3xl mx-auto px-5 sm:px-8 py-12 sm:py-16">
+            <div
+              className="prose-custom animate-fade-up stagger-4"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
+
+            {/* Share & Tags */}
+            <div className="mt-12 pt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6" style={{ borderTop: '1px solid var(--border)' }}>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold tracking-wider uppercase mr-2" style={{ color: 'var(--muted)' }}>Share</span>
+                <button className="share-btn p-2" aria-label="Share on Twitter"><i className="fa-brands fa-x-twitter"></i></button>
+                <button className="share-btn p-2" aria-label="Share on Facebook"><i className="fa-brands fa-facebook-f"></i></button>
+                <button className="share-btn p-2" aria-label="Copy link"><i className="fa-solid fa-link"></i></button>
+              </div>
+              <span className="px-3 py-1.5 rounded-full text-xs font-medium" style={{ background: 'var(--accent-dim)', color: 'var(--accent)', border: '1px solid rgba(196,125,78,0.25)' }}>
+                {post.category}
+              </span>
+            </div>
+          </article>
+
+          {/* Related Posts */}
+          {related.length > 0 && (
+            <section className="max-w-6xl mx-auto px-5 sm:px-8 pb-16 sm:pb-20">
+              <h3 className="font-display text-xl sm:text-2xl font-bold mb-8" style={{ color: 'var(--fg)' }}>Related Articles</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {related.map((p, i) => (
+                  <PostCard key={p.id} post={p} index={i} />
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+      );
+    }
+
+    /* ==================== ABOUT PAGE ==================== */
+    function AboutPage() {
+      return (
+        <div className="relative">
+          <div className="glow-blob" style={{ width: 500, height: 500, top: 50, left: -200, background: 'var(--accent)' }} />
+
+          <section className="max-w-3xl mx-auto px-5 sm:px-8 py-20 sm:py-28">
+            <p className="text-xs font-semibold tracking-widest uppercase mb-4 animate-fade-up" style={{ color: 'var(--accent)' }}>About Inkwell</p>
+            <h1 className="font-display text-4xl sm:text-5xl font-900 leading-tight mb-8 animate-fade-up stagger-1" style={{ color: 'var(--fg)' }}>
+              A space for slow thinking in a fast world
+            </h1>
+            <div className="space-y-5 animate-fade-up stagger-2">
+              <p className="text-base sm:text-lg leading-relaxed" style={{ color: 'var(--fg-secondary)' }}>
+                Inkwell was born from a simple frustration: the best ideas deserve more than a tweet, more than a hot take, more than the three seconds of attention that most online writing competes for. We believe that some thoughts need room — room to develop, room to breathe, room to sit with the reader long after the tab has been closed.
+              </p>
+              <p className="text-base sm:text-lg leading-relaxed" style={{ color: 'var(--fg-secondary)' }}>
+                We publish essays on design, technology, and culture — not because these categories are separate, but because they're deeply intertwined. The way we design our tools shapes how we think. The technologies we build reflect our values. The culture we create determines what we're willing to accept. These connections are the threads we follow.
+              </p>
+              <p className="text-base sm:text-lg leading-relaxed" style={{ color: 'var(--fg-secondary)' }}>
+                There is no publishing schedule here. No content calendar. No SEO strategy. Articles appear when they're ready, which means sometimes there will be silence for weeks, and sometimes several pieces will arrive close together. We trust that if the writing is good enough, the audience will find it.
+              </p>
+            </div>
+
+            {/* Stats / Values */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-14 animate-fade-up stagger-3">
+              {[
+                { icon: 'fa-feather-pointed', label: 'Long-form Only', desc: 'Every piece takes the space it needs' },
+                { icon: 'fa-eye-slash', label: 'No Analytics', desc: 'We don\'t track what you read' },
+                { icon: 'fa-heart', label: 'Human Curated', desc: 'No algorithms, no AI, no sponsors' }
+              ].map((item, i) => (
+                <div key={i} className="p-5 rounded-xl" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
+                  <i className={`fa-solid ${item.icon} text-lg mb-3 block`} style={{ color: 'var(--accent)' }} />
+                  <h3 className="font-display text-base font-bold mb-1" style={{ color: 'var(--fg)' }}>{item.label}</h3>
+                  <p className="text-sm" style={{ color: 'var(--muted)' }}>{item.desc}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Team */}
+            <div className="mt-16 animate-fade-up stagger-5">
+              <h2 className="font-display text-xl font-bold mb-6" style={{ color: 'var(--fg)' }}>Our Writers</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {[
+                  { name: 'Elena Vasquez', role: 'Design', seed: 'elena42' },
+                  { name: 'James Okafor', role: 'Technology', seed: 'james77' },
+                  { name: 'Sofia Andersson', role: 'Culture', seed: 'sofia33' },
+                  { name: 'Marcus Webb', role: 'Technology', seed: 'marcus14' }
+                ].map((writer, i) => (
+                  <div key={i} className="text-center p-4 rounded-xl" style={{ background: 'var(--card)', border: '1px solid var(--border)' }}>
+                    <img
+                      src={`https://picsum.photos/seed/${writer.seed}/120/120.jpg`}
+                      alt={writer.name}
+                      className="w-16 h-16 rounded-full object-cover mx-auto mb-3"
+                      loading="lazy"
+                    />
+                    <p className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>{writer.name}</p>
+                    <p className="text-xs" style={{ color: 'var(--muted)' }}>{writer.role}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        </div>
+      );
+    }
+
+    /* ==================== 404 PAGE ==================== */
+    function NotFoundPage() {
+      return (
+        <div className="max-w-3xl mx-auto px-5 sm:px-8 py-32 text-center">
+          <div className="animate-scale-in">
+            <p className="font-display text-8xl sm:text-9xl font-900 leading-none mb-4" style={{ color: 'var(--accent)', opacity: 0.3 }}>404</p>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold mb-3" style={{ color: 'var(--fg)' }}>Page Not Found</h1>
+            <p className="mb-8 max-w-md mx-auto" style={{ color: 'var(--muted)' }}>
+              The page you're looking for has wandered off, much like a misplaced bookmark in an old novel.
+            </p>
+            <Link to="/" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200" style={{ background: 'var(--accent)', color: '#0d0c0b' }}
+              onMouseEnter={e => e.target.style.background = 'var(--accent-hover)'}
+              onMouseLeave={e => e.target.style.background = 'var(--accent)'}
+            >
+              <i className="fa-solid fa-house text-xs" /> Return Home
+            </Link>
+          </div>
+        </div>
+      );
+    }
+
+    /* ==================== APP ==================== */
+    function App() {
+      return (
+        <HashRouter>
+          <ScrollToTop />
+          <Layout>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/post/:id" element={<PostPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </Layout>
+        </HashRouter>
+      );
+    }
+
+    /* ==================== RENDER ==================== */
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
